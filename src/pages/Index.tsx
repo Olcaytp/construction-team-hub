@@ -8,7 +8,7 @@ import { TeamMemberCard } from "@/components/TeamMemberCard";
 import { TeamMemberForm } from "@/components/TeamMemberForm";
 import { ProjectForm } from "@/components/ProjectForm";
 import { TaskForm } from "@/components/TaskForm";
-import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2 } from "lucide-react";
+import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
 type Task = {
@@ -19,6 +19,7 @@ type Task = {
   dueDate: string;
   status: "pending" | "in-progress" | "completed";
   priority: "low" | "medium" | "high";
+  estimatedCost: number;
 };
 
 type Project = {
@@ -29,6 +30,9 @@ type Project = {
   team: string;
   progress: number;
   status: "active" | "completed" | "pending";
+  budget: number;
+  actualCost: number;
+  revenue: number;
 };
 
 type TeamMember = {
@@ -36,6 +40,7 @@ type TeamMember = {
   name: string;
   phone: string;
   specialty: string;
+  dailyWage: number;
 };
 
 const STORAGE_KEYS = {
@@ -75,6 +80,7 @@ const Index = () => {
           dueDate: "15 Şubat 2024",
           status: "in-progress",
           priority: "high",
+          estimatedCost: 15000,
         },
         {
           id: "2",
@@ -84,6 +90,7 @@ const Index = () => {
           dueDate: "20 Şubat 2024",
           status: "pending",
           priority: "medium",
+          estimatedCost: 8000,
         },
       ]);
     }
@@ -100,6 +107,9 @@ const Index = () => {
           team: "Ahmet Yılmaz Ekibi",
           progress: 65,
           status: "active",
+          budget: 500000,
+          actualCost: 325000,
+          revenue: 450000,
         },
         {
           id: "2",
@@ -109,6 +119,9 @@ const Index = () => {
           team: "Mehmet Demir Ekibi",
           progress: 40,
           status: "active",
+          budget: 800000,
+          actualCost: 320000,
+          revenue: 600000,
         },
       ]);
     }
@@ -122,12 +135,14 @@ const Index = () => {
           name: "Ahmet Yılmaz",
           phone: "0555 123 45 67",
           specialty: "Elektrikçi",
+          dailyWage: 800,
         },
         {
           id: "2",
           name: "Mehmet Demir",
           phone: "0555 987 65 43",
           specialty: "Boyacı",
+          dailyWage: 650,
         },
       ]);
     }
@@ -253,6 +268,10 @@ const Index = () => {
             <TabsTrigger value="teams" className="gap-2">
               <Users className="h-4 w-4" />
               Ekipler
+            </TabsTrigger>
+            <TabsTrigger value="finance" className="gap-2">
+              <DollarSign className="h-4 w-4" />
+              Ekonomi
             </TabsTrigger>
           </TabsList>
 
@@ -426,6 +445,171 @@ const Index = () => {
                   onDelete={() => handleDeleteTeamMember(member.id)}
                 />
               ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="finance" className="space-y-6">
+            <h2 className="text-2xl font-bold text-foreground">Finansal Özet</h2>
+            
+            {/* Financial Summary Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <StatsCard
+                title="Toplam Bütçe"
+                value={`₺${projects.reduce((sum, p) => sum + p.budget, 0).toLocaleString('tr-TR')}`}
+                icon={DollarSign}
+                variant="default"
+              />
+              <StatsCard
+                title="Toplam Gelir"
+                value={`₺${projects.reduce((sum, p) => sum + p.revenue, 0).toLocaleString('tr-TR')}`}
+                icon={DollarSign}
+                variant="success"
+              />
+              <StatsCard
+                title="Toplam Maliyet"
+                value={`₺${projects.reduce((sum, p) => sum + p.actualCost, 0).toLocaleString('tr-TR')}`}
+                icon={DollarSign}
+                variant="warning"
+              />
+              <StatsCard
+                title="Net Kar"
+                value={`₺${(projects.reduce((sum, p) => sum + p.revenue, 0) - projects.reduce((sum, p) => sum + p.actualCost, 0)).toLocaleString('tr-TR')}`}
+                icon={DollarSign}
+                variant="info"
+              />
+            </div>
+
+            {/* Project Financial Details */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-foreground">Proje Bazlı Finansal Durum</h3>
+              <div className="grid gap-4">
+                {projects.map(project => (
+                  <div key={project.id} className="p-4 bg-card border border-border rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-foreground">{project.title}</h4>
+                      <span className={`text-sm font-medium ${
+                        project.revenue - project.actualCost > 0 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {project.revenue - project.actualCost > 0 ? '+' : ''}
+                        ₺{(project.revenue - project.actualCost).toLocaleString('tr-TR')}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Bütçe</p>
+                        <p className="font-medium text-foreground">₺{project.budget.toLocaleString('tr-TR')}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Gelir</p>
+                        <p className="font-medium text-foreground">₺{project.revenue.toLocaleString('tr-TR')}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Maliyet</p>
+                        <p className="font-medium text-foreground">₺{project.actualCost.toLocaleString('tr-TR')}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                        <span>Bütçe Kullanımı</span>
+                        <span>{Math.round((project.actualCost / project.budget) * 100)}%</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${
+                            (project.actualCost / project.budget) > 0.9 
+                              ? 'bg-red-500' 
+                              : (project.actualCost / project.budget) > 0.7 
+                                ? 'bg-yellow-500' 
+                                : 'bg-green-500'
+                          }`}
+                          style={{ width: `${Math.min((project.actualCost / project.budget) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Task Costs */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-foreground">Görev Maliyetleri</h3>
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left p-3 text-sm font-medium text-foreground">Görev</th>
+                      <th className="text-left p-3 text-sm font-medium text-foreground">Proje</th>
+                      <th className="text-left p-3 text-sm font-medium text-foreground">Durum</th>
+                      <th className="text-right p-3 text-sm font-medium text-foreground">Tahmini Maliyet</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tasks.map(task => (
+                      <tr key={task.id} className="border-t border-border">
+                        <td className="p-3 text-sm text-foreground">{task.title}</td>
+                        <td className="p-3 text-sm text-muted-foreground">{task.project}</td>
+                        <td className="p-3 text-sm">
+                          <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
+                            task.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                            task.status === 'in-progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                            'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                          }`}>
+                            {task.status === 'completed' ? 'Tamamlandı' : 
+                             task.status === 'in-progress' ? 'Devam Ediyor' : 'Bekliyor'}
+                          </span>
+                        </td>
+                        <td className="p-3 text-sm text-right font-medium text-foreground">
+                          ₺{task.estimatedCost.toLocaleString('tr-TR')}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="border-t-2 border-border bg-muted/50">
+                      <td colSpan={3} className="p-3 text-sm font-semibold text-foreground">Toplam</td>
+                      <td className="p-3 text-sm text-right font-bold text-foreground">
+                        ₺{tasks.reduce((sum, t) => sum + t.estimatedCost, 0).toLocaleString('tr-TR')}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Team Costs */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-foreground">Ekip Maliyetleri</h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {teamMembers.map(member => (
+                  <div key={member.id} className="p-4 bg-card border border-border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-foreground">{member.name}</h4>
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                        {member.specialty}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Günlük Ücret</span>
+                      <span className="text-lg font-bold text-foreground">₺{member.dailyWage.toLocaleString('tr-TR')}</span>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-border">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Aylık Tahmini</span>
+                        <span className="font-medium text-foreground">₺{(member.dailyWage * 26).toLocaleString('tr-TR')}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-foreground">Toplam Günlük Ekip Maliyeti</span>
+                  <span className="text-xl font-bold text-primary">
+                    ₺{teamMembers.reduce((sum, m) => sum + m.dailyWage, 0).toLocaleString('tr-TR')}
+                  </span>
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
