@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,21 @@ export const ProjectForm = ({
       progress: 0,
     },
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset(defaultValues);
+    } else {
+      form.reset({
+        title: "",
+        location: "",
+        startDate: "",
+        team: "",
+        status: "pending",
+        progress: 0,
+      });
+    }
+  }, [defaultValues, form]);
 
   const handleSubmit = (data: FormData) => {
     onSubmit(data);

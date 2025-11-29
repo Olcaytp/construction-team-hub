@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,21 @@ export const TaskForm = ({
       priority: "medium",
     },
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset(defaultValues);
+    } else {
+      form.reset({
+        title: "",
+        project: "",
+        assignee: "",
+        dueDate: "",
+        status: "pending",
+        priority: "medium",
+      });
+    }
+  }, [defaultValues, form]);
 
   const handleSubmit = (data: FormData) => {
     onSubmit(data);
