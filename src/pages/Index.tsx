@@ -455,25 +455,25 @@ const Index = () => {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatsCard
                 title="Toplam Bütçe"
-                value={`₺${projects.reduce((sum, p) => sum + p.budget, 0).toLocaleString('tr-TR')}`}
+                value={`₺${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString('tr-TR')}`}
                 icon={DollarSign}
                 variant="default"
               />
               <StatsCard
                 title="Toplam Gelir"
-                value={`₺${projects.reduce((sum, p) => sum + p.revenue, 0).toLocaleString('tr-TR')}`}
+                value={`₺${projects.reduce((sum, p) => sum + (p.revenue || 0), 0).toLocaleString('tr-TR')}`}
                 icon={DollarSign}
                 variant="success"
               />
               <StatsCard
                 title="Toplam Maliyet"
-                value={`₺${projects.reduce((sum, p) => sum + p.actualCost, 0).toLocaleString('tr-TR')}`}
+                value={`₺${projects.reduce((sum, p) => sum + (p.actualCost || 0), 0).toLocaleString('tr-TR')}`}
                 icon={DollarSign}
                 variant="warning"
               />
               <StatsCard
                 title="Net Kar"
-                value={`₺${(projects.reduce((sum, p) => sum + p.revenue, 0) - projects.reduce((sum, p) => sum + p.actualCost, 0)).toLocaleString('tr-TR')}`}
+                value={`₺${(projects.reduce((sum, p) => sum + (p.revenue || 0), 0) - projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)).toLocaleString('tr-TR')}`}
                 icon={DollarSign}
                 variant="info"
               />
@@ -488,43 +488,43 @@ const Index = () => {
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold text-foreground">{project.title}</h4>
                       <span className={`text-sm font-medium ${
-                        project.revenue - project.actualCost > 0 
+                        (project.revenue || 0) - (project.actualCost || 0) > 0 
                           ? 'text-green-600 dark:text-green-400' 
                           : 'text-red-600 dark:text-red-400'
                       }`}>
-                        {project.revenue - project.actualCost > 0 ? '+' : ''}
-                        ₺{(project.revenue - project.actualCost).toLocaleString('tr-TR')}
+                        {(project.revenue || 0) - (project.actualCost || 0) > 0 ? '+' : ''}
+                        ₺{((project.revenue || 0) - (project.actualCost || 0)).toLocaleString('tr-TR')}
                       </span>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Bütçe</p>
-                        <p className="font-medium text-foreground">₺{project.budget.toLocaleString('tr-TR')}</p>
+                        <p className="font-medium text-foreground">₺{(project.budget || 0).toLocaleString('tr-TR')}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Gelir</p>
-                        <p className="font-medium text-foreground">₺{project.revenue.toLocaleString('tr-TR')}</p>
+                        <p className="font-medium text-foreground">₺{(project.revenue || 0).toLocaleString('tr-TR')}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Maliyet</p>
-                        <p className="font-medium text-foreground">₺{project.actualCost.toLocaleString('tr-TR')}</p>
+                        <p className="font-medium text-foreground">₺{(project.actualCost || 0).toLocaleString('tr-TR')}</p>
                       </div>
                     </div>
                     <div className="mt-3">
                       <div className="flex justify-between text-xs text-muted-foreground mb-1">
                         <span>Bütçe Kullanımı</span>
-                        <span>{Math.round((project.actualCost / project.budget) * 100)}%</span>
+                        <span>{(project.budget || 0) > 0 ? Math.round(((project.actualCost || 0) / (project.budget || 1)) * 100) : 0}%</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
-                            (project.actualCost / project.budget) > 0.9 
+                            ((project.actualCost || 0) / (project.budget || 1)) > 0.9 
                               ? 'bg-red-500' 
-                              : (project.actualCost / project.budget) > 0.7 
+                              : ((project.actualCost || 0) / (project.budget || 1)) > 0.7 
                                 ? 'bg-yellow-500' 
                                 : 'bg-green-500'
                           }`}
-                          style={{ width: `${Math.min((project.actualCost / project.budget) * 100, 100)}%` }}
+                          style={{ width: `${Math.min(((project.actualCost || 0) / (project.budget || 1)) * 100, 100)}%` }}
                         />
                       </div>
                     </div>
@@ -562,14 +562,14 @@ const Index = () => {
                           </span>
                         </td>
                         <td className="p-3 text-sm text-right font-medium text-foreground">
-                          ₺{task.estimatedCost.toLocaleString('tr-TR')}
+                          ₺{(task.estimatedCost || 0).toLocaleString('tr-TR')}
                         </td>
                       </tr>
                     ))}
                     <tr className="border-t-2 border-border bg-muted/50">
                       <td colSpan={3} className="p-3 text-sm font-semibold text-foreground">Toplam</td>
                       <td className="p-3 text-sm text-right font-bold text-foreground">
-                        ₺{tasks.reduce((sum, t) => sum + t.estimatedCost, 0).toLocaleString('tr-TR')}
+                        ₺{tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0).toLocaleString('tr-TR')}
                       </td>
                     </tr>
                   </tbody>
@@ -591,12 +591,12 @@ const Index = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Günlük Ücret</span>
-                      <span className="text-lg font-bold text-foreground">₺{member.dailyWage.toLocaleString('tr-TR')}</span>
+                      <span className="text-lg font-bold text-foreground">₺{(member.dailyWage || 0).toLocaleString('tr-TR')}</span>
                     </div>
                     <div className="mt-2 pt-2 border-t border-border">
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>Aylık Tahmini</span>
-                        <span className="font-medium text-foreground">₺{(member.dailyWage * 26).toLocaleString('tr-TR')}</span>
+                        <span className="font-medium text-foreground">₺{((member.dailyWage || 0) * 26).toLocaleString('tr-TR')}</span>
                       </div>
                     </div>
                   </div>
@@ -606,7 +606,7 @@ const Index = () => {
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-foreground">Toplam Günlük Ekip Maliyeti</span>
                   <span className="text-xl font-bold text-primary">
-                    ₺{teamMembers.reduce((sum, m) => sum + m.dailyWage, 0).toLocaleString('tr-TR')}
+                    ₺{teamMembers.reduce((sum, m) => sum + (m.dailyWage || 0), 0).toLocaleString('tr-TR')}
                   </span>
                 </div>
               </div>
