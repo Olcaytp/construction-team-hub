@@ -33,6 +33,7 @@ const formSchema = z.object({
   dueDate: z.string().min(1, "Bitiş tarihi gerekli"),
   status: z.enum(["pending", "in-progress", "completed"]),
   priority: z.enum(["low", "medium", "high"]),
+  estimatedCost: z.coerce.number().min(0, "Maliyet 0'dan büyük olmalı"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -61,6 +62,7 @@ export const TaskForm = ({
       dueDate: "",
       status: "pending",
       priority: "medium",
+      estimatedCost: 0,
     },
   });
 
@@ -75,6 +77,7 @@ export const TaskForm = ({
         dueDate: "",
         status: "pending",
         priority: "medium",
+        estimatedCost: 0,
       });
     }
   }, [defaultValues, form]);
@@ -185,6 +188,19 @@ export const TaskForm = ({
                       <SelectItem value="high">Yüksek</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="estimatedCost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tahmini Maliyet (₺)</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" placeholder="Örn: 15000" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

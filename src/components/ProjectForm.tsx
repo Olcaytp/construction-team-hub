@@ -33,6 +33,9 @@ const formSchema = z.object({
   team: z.string().min(2, "Taşeron/Ekip adı gerekli"),
   status: z.enum(["active", "completed", "pending"]),
   progress: z.coerce.number().min(0).max(100),
+  budget: z.coerce.number().min(0, "Bütçe 0'dan büyük olmalı"),
+  actualCost: z.coerce.number().min(0, "Maliyet 0'dan büyük olmalı"),
+  revenue: z.coerce.number().min(0, "Gelir 0'dan büyük olmalı"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -61,6 +64,9 @@ export const ProjectForm = ({
       team: "",
       status: "pending",
       progress: 0,
+      budget: 0,
+      actualCost: 0,
+      revenue: 0,
     },
   });
 
@@ -75,6 +81,9 @@ export const ProjectForm = ({
         team: "",
         status: "pending",
         progress: 0,
+        budget: 0,
+        actualCost: 0,
+        revenue: 0,
       });
     }
   }, [defaultValues, form]);
@@ -175,6 +184,45 @@ export const ProjectForm = ({
                   <FormLabel>İlerleme (%)</FormLabel>
                   <FormControl>
                     <Input type="number" min="0" max="100" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="budget"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bütçe (₺)</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" placeholder="Örn: 500000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="actualCost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gerçekleşen Maliyet (₺)</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" placeholder="Örn: 325000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="revenue"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gelir (₺)</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" placeholder="Örn: 450000" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

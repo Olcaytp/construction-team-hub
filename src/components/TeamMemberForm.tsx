@@ -23,6 +23,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Ad Soyad en az 2 karakter olmalı"),
   phone: z.string().min(10, "Geçerli bir telefon numarası girin"),
   specialty: z.string().min(2, "Uzmanlık alanı en az 2 karakter olmalı"),
+  dailyWage: z.coerce.number().min(0, "Günlük ücret 0'dan büyük olmalı"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -48,6 +49,7 @@ export const TeamMemberForm = ({
       name: "",
       phone: "",
       specialty: "",
+      dailyWage: 0,
     },
   });
 
@@ -59,6 +61,7 @@ export const TeamMemberForm = ({
         name: "",
         phone: "",
         specialty: "",
+        dailyWage: 0,
       });
     }
   }, [defaultValues, form]);
@@ -111,6 +114,19 @@ export const TeamMemberForm = ({
                   <FormLabel>Uzmanlık/Meslek</FormLabel>
                   <FormControl>
                     <Input placeholder="Örn: Elektrikçi, Boyacı, Sıvacı" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dailyWage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Günlük Ücret (₺)</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" placeholder="Örn: 800" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
