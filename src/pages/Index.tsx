@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { StatsCard } from "@/components/StatsCard";
@@ -8,228 +8,134 @@ import { TeamMemberCard } from "@/components/TeamMemberCard";
 import { TeamMemberForm } from "@/components/TeamMemberForm";
 import { ProjectForm } from "@/components/ProjectForm";
 import { TaskForm } from "@/components/TaskForm";
-import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign } from "lucide-react";
-import { toast } from "sonner";
-
-type Task = {
-  id: string;
-  title: string;
-  project: string;
-  assignee: string;
-  dueDate: string;
-  status: "pending" | "in-progress" | "completed";
-  priority: "low" | "medium" | "high";
-  estimatedCost: number;
-};
-
-type Project = {
-  id: string;
-  title: string;
-  location: string;
-  startDate: string;
-  team: string;
-  progress: number;
-  status: "active" | "completed" | "pending";
-  budget: number;
-  actualCost: number;
-  revenue: number;
-};
-
-type TeamMember = {
-  id: string;
-  name: string;
-  phone: string;
-  specialty: string;
-  dailyWage: number;
-};
-
-const STORAGE_KEYS = {
-  TASKS: 'construction_tasks',
-  PROJECTS: 'construction_projects',
-  TEAM_MEMBERS: 'construction_team_members',
-};
+import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useProjects } from "@/hooks/useProjects";
+import { useTasks } from "@/hooks/useTasks";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 const Index = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const { signOut } = useAuth();
+  const { projects, isLoading: projectsLoading, addProject, updateProject, deleteProject } = useProjects();
+  const { tasks, isLoading: tasksLoading, addTask, updateTask, deleteTask } = useTasks();
+  const { teamMembers, isLoading: membersLoading, addTeamMember, updateTeamMember, deleteTeamMember } = useTeamMembers();
   
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [projectFormOpen, setProjectFormOpen] = useState(false);
   const [teamFormOpen, setTeamFormOpen] = useState(false);
   
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [editingTeamMember, setEditingTeamMember] = useState<TeamMember | null>(null);
+  const [editingTask, setEditingTask] = useState<any>(null);
+  const [editingProject, setEditingProject] = useState<any>(null);
+  const [editingTeamMember, setEditingTeamMember] = useState<any>(null);
 
-  // Load data from localStorage
-  useEffect(() => {
-    const savedTasks = localStorage.getItem(STORAGE_KEYS.TASKS);
-    const savedProjects = localStorage.getItem(STORAGE_KEYS.PROJECTS);
-    const savedTeamMembers = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
-
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    } else {
-      setTasks([
-        {
-          id: "1",
-          title: "Zemin Betonajı",
-          project: "Konut Projesi - Kadıköy",
-          assignee: "Ahmet Yılmaz Ekibi",
-          dueDate: "15 Şubat 2024",
-          status: "in-progress",
-          priority: "high",
-          estimatedCost: 15000,
-        },
-        {
-          id: "2",
-          title: "Dış Cephe Boyası",
-          project: "İş Merkezi - Levent",
-          assignee: "Mehmet Demir Ekibi",
-          dueDate: "20 Şubat 2024",
-          status: "pending",
-          priority: "medium",
-          estimatedCost: 8000,
-        },
-      ]);
+  const handleStatusChange = (taskId: string, newStatus: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      updateTask({ id: taskId, status: newStatus });
     }
-
-    if (savedProjects) {
-      setProjects(JSON.parse(savedProjects));
-    } else {
-      setProjects([
-        {
-          id: "1",
-          title: "Konut Projesi",
-          location: "Kadıköy, İstanbul",
-          startDate: "5 Ocak 2024",
-          team: "Ahmet Yılmaz Ekibi",
-          progress: 65,
-          status: "active",
-          budget: 500000,
-          actualCost: 325000,
-          revenue: 450000,
-        },
-        {
-          id: "2",
-          title: "İş Merkezi",
-          location: "Levent, İstanbul",
-          startDate: "12 Ocak 2024",
-          team: "Mehmet Demir Ekibi",
-          progress: 40,
-          status: "active",
-          budget: 800000,
-          actualCost: 320000,
-          revenue: 600000,
-        },
-      ]);
-    }
-
-    if (savedTeamMembers) {
-      setTeamMembers(JSON.parse(savedTeamMembers));
-    } else {
-      setTeamMembers([
-        {
-          id: "1",
-          name: "Ahmet Yılmaz",
-          phone: "0555 123 45 67",
-          specialty: "Elektrikçi",
-          dailyWage: 800,
-        },
-        {
-          id: "2",
-          name: "Mehmet Demir",
-          phone: "0555 987 65 43",
-          specialty: "Boyacı",
-          dailyWage: 650,
-        },
-      ]);
-    }
-  }, []);
-
-  // Save to localStorage
-  useEffect(() => {
-    if (tasks.length > 0) localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
-  }, [tasks]);
-
-  useEffect(() => {
-    if (projects.length > 0) localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects));
-  }, [projects]);
-
-  useEffect(() => {
-    if (teamMembers.length > 0) localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(teamMembers));
-  }, [teamMembers]);
-
-  const handleStatusChange = (taskId: string, newStatus: "pending" | "in-progress" | "completed") => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, status: newStatus } : task
-    ));
-    toast.success("Görev durumu güncellendi");
   };
 
-  // Team Member handlers
-  const handleAddTeamMember = (data: Omit<TeamMember, 'id'>) => {
-    const newMember = { ...data, id: Date.now().toString() };
-    setTeamMembers([...teamMembers, newMember]);
-    toast.success("Ekip üyesi eklendi");
+  const handleAddTeamMember = (data: any) => {
+    addTeamMember(data);
+    setTeamFormOpen(false);
   };
 
-  const handleEditTeamMember = (data: Omit<TeamMember, 'id'>) => {
+  const handleEditTeamMember = (data: any) => {
     if (!editingTeamMember) return;
-    setTeamMembers(teamMembers.map(member =>
-      member.id === editingTeamMember.id ? { ...member, ...data } : member
-    ));
+    updateTeamMember({ id: editingTeamMember.id, ...data });
     setEditingTeamMember(null);
-    toast.success("Ekip üyesi güncellendi");
+    setTeamFormOpen(false);
   };
 
   const handleDeleteTeamMember = (id: string) => {
-    setTeamMembers(teamMembers.filter(member => member.id !== id));
-    toast.success("Ekip üyesi silindi");
+    deleteTeamMember(id);
   };
 
-  // Project handlers
-  const handleAddProject = (data: Omit<Project, 'id'>) => {
-    const newProject = { ...data, id: Date.now().toString() };
-    setProjects([...projects, newProject]);
-    toast.success("Proje eklendi");
+  const handleAddProject = (data: any) => {
+    const projectData = {
+      title: data.title,
+      description: data.location,
+      status: data.status,
+      progress: data.progress,
+      startDate: data.startDate,
+      endDate: data.startDate,
+      assignedTeam: data.team.split(',').map((t: string) => t.trim()),
+      budget: data.budget,
+      actualCost: data.actualCost,
+      revenue: data.revenue,
+    };
+    addProject(projectData);
+    setProjectFormOpen(false);
   };
 
-  const handleEditProject = (data: Omit<Project, 'id'>) => {
+  const handleEditProject = (data: any) => {
     if (!editingProject) return;
-    setProjects(projects.map(project =>
-      project.id === editingProject.id ? { ...project, ...data } : project
-    ));
+    const projectData = {
+      id: editingProject.id,
+      title: data.title,
+      description: data.location,
+      status: data.status,
+      progress: data.progress,
+      startDate: data.startDate,
+      endDate: data.startDate,
+      assignedTeam: data.team.split(',').map((t: string) => t.trim()),
+      budget: data.budget,
+      actualCost: data.actualCost,
+      revenue: data.revenue,
+    };
+    updateProject(projectData);
     setEditingProject(null);
-    toast.success("Proje güncellendi");
+    setProjectFormOpen(false);
   };
 
   const handleDeleteProject = (id: string) => {
-    setProjects(projects.filter(project => project.id !== id));
-    toast.success("Proje silindi");
+    deleteProject(id);
   };
 
-  // Task handlers
-  const handleAddTask = (data: Omit<Task, 'id'>) => {
-    const newTask = { ...data, id: Date.now().toString() };
-    setTasks([...tasks, newTask]);
-    toast.success("Görev eklendi");
+  const handleAddTask = (data: any) => {
+    const taskData = {
+      title: data.title,
+      description: "",
+      status: data.status,
+      priority: data.priority,
+      projectId: projects.find(p => p.title === data.project)?.id || "",
+      assignedTo: data.assignee,
+      dueDate: data.dueDate,
+      estimatedCost: data.estimatedCost,
+    };
+    addTask(taskData);
+    setTaskFormOpen(false);
   };
 
-  const handleEditTask = (data: Omit<Task, 'id'>) => {
+  const handleEditTask = (data: any) => {
     if (!editingTask) return;
-    setTasks(tasks.map(task =>
-      task.id === editingTask.id ? { ...task, ...data } : task
-    ));
+    const taskData = {
+      id: editingTask.id,
+      title: data.title,
+      description: "",
+      status: data.status,
+      priority: data.priority,
+      projectId: projects.find(p => p.title === data.project)?.id || "",
+      assignedTo: data.assignee,
+      dueDate: data.dueDate,
+      estimatedCost: data.estimatedCost,
+    };
+    updateTask(taskData);
     setEditingTask(null);
-    toast.success("Görev güncellendi");
+    setTaskFormOpen(false);
   };
 
   const handleDeleteTask = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id));
-    toast.success("Görev silindi");
+    deleteTask(id);
   };
+
+  if (projectsLoading || tasksLoading || membersLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -246,6 +152,10 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground">Taşeron ve Ekip Takibi</p>
               </div>
             </div>
+            <Button variant="outline" onClick={signOut} className="gap-2">
+              <LogOut className="h-4 w-4" />
+              Çıkış Yap
+            </Button>
           </div>
         </div>
       </header>
@@ -311,7 +221,12 @@ const Index = () => {
                 {projects.filter(p => p.status === 'active').slice(0, 3).map(project => (
                   <ProjectCard
                     key={project.id}
-                    {...project}
+                    title={project.title}
+                    location={project.description}
+                    startDate={project.startDate}
+                    team={project.assignedTeam.join(', ')}
+                    progress={project.progress}
+                    status={project.status as any}
                     onClick={() => {
                       setEditingProject(project);
                       setProjectFormOpen(true);
@@ -328,7 +243,12 @@ const Index = () => {
                 {tasks.slice(0, 3).map(task => (
                   <TaskItem
                     key={task.id}
-                    {...task}
+                    title={task.title}
+                    project={projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
+                    assignee={task.assignedTo}
+                    dueDate={task.dueDate}
+                    status={task.status as any}
+                    priority={task.priority as any}
                     onStatusChange={(status) => handleStatusChange(task.id, status)}
                   />
                 ))}
@@ -339,7 +259,10 @@ const Index = () => {
           <TabsContent value="projects" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">Tüm Projeler</h2>
-              <Button onClick={() => setProjectFormOpen(true)} className="gap-2">
+              <Button onClick={() => {
+                setEditingProject(null);
+                setProjectFormOpen(true);
+              }} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Yeni Proje
               </Button>
@@ -348,7 +271,12 @@ const Index = () => {
               {projects.map(project => (
                 <div key={project.id} className="relative group">
                   <ProjectCard
-                    {...project}
+                    title={project.title}
+                    location={project.description}
+                    startDate={project.startDate}
+                    team={project.assignedTeam.join(', ')}
+                    progress={project.progress}
+                    status={project.status as any}
                     onClick={() => {
                       setEditingProject(project);
                       setProjectFormOpen(true);
@@ -387,7 +315,10 @@ const Index = () => {
           <TabsContent value="tasks" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">Tüm Görevler</h2>
-              <Button onClick={() => setTaskFormOpen(true)} className="gap-2">
+              <Button onClick={() => {
+                setEditingTask(null);
+                setTaskFormOpen(true);
+              }} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Yeni Görev
               </Button>
@@ -397,7 +328,12 @@ const Index = () => {
                 <div key={task.id} className="flex gap-2 group">
                   <div className="flex-1">
                     <TaskItem 
-                      {...task} 
+                      title={task.title}
+                      project={projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
+                      assignee={task.assignedTo}
+                      dueDate={task.dueDate}
+                      status={task.status as any}
+                      priority={task.priority as any}
                       onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
                     />
                   </div>
@@ -428,7 +364,10 @@ const Index = () => {
           <TabsContent value="teams" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">Ekip Üyeleri</h2>
-              <Button onClick={() => setTeamFormOpen(true)} className="gap-2">
+              <Button onClick={() => {
+                setEditingTeamMember(null);
+                setTeamFormOpen(true);
+              }} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Yeni Üye
               </Button>
@@ -437,7 +376,10 @@ const Index = () => {
               {teamMembers.map(member => (
                 <TeamMemberCard
                   key={member.id}
-                  {...member}
+                  id={member.id}
+                  name={member.name}
+                  phone={member.phone}
+                  specialty={member.specialty}
                   onEdit={() => {
                     setEditingTeamMember(member);
                     setTeamFormOpen(true);
@@ -483,131 +425,109 @@ const Index = () => {
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-foreground">Proje Bazlı Finansal Durum</h3>
               <div className="grid gap-4">
-                {projects.map(project => (
-                  <div key={project.id} className="p-4 bg-card border border-border rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-foreground">{project.title}</h4>
-                      <span className={`text-sm font-medium ${
-                        (project.revenue || 0) - (project.actualCost || 0) > 0 
-                          ? 'text-green-600 dark:text-green-400' 
-                          : 'text-red-600 dark:text-red-400'
-                      }`}>
-                        {(project.revenue || 0) - (project.actualCost || 0) > 0 ? '+' : ''}
-                        ₺{((project.revenue || 0) - (project.actualCost || 0)).toLocaleString('tr-TR')}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Bütçe</p>
-                        <p className="font-medium text-foreground">₺{(project.budget || 0).toLocaleString('tr-TR')}</p>
+                {projects.map(project => {
+                  const profit = (project.revenue || 0) - (project.actualCost || 0);
+                  const isProfitable = profit >= 0;
+                  
+                  return (
+                    <div key={project.id} className="p-4 bg-card border border-border rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-foreground">{project.title}</h4>
+                        <span className={`text-sm font-medium ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
+                          {isProfitable ? '+' : ''}{profit.toLocaleString('tr-TR')} ₺
+                        </span>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Gelir</p>
-                        <p className="font-medium text-foreground">₺{(project.revenue || 0).toLocaleString('tr-TR')}</p>
+                      <div className="grid grid-cols-3 gap-4 mb-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Bütçe</p>
+                          <p className="font-semibold">{(project.budget || 0).toLocaleString('tr-TR')} ₺</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Gelir</p>
+                          <p className="font-semibold text-green-600">{(project.revenue || 0).toLocaleString('tr-TR')} ₺</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Maliyet</p>
+                          <p className="font-semibold text-orange-600">{(project.actualCost || 0).toLocaleString('tr-TR')} ₺</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Maliyet</p>
-                        <p className="font-medium text-foreground">₺{(project.actualCost || 0).toLocaleString('tr-TR')}</p>
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                        <span>Bütçe Kullanımı</span>
-                        <span>{(project.budget || 0) > 0 ? Math.round(((project.actualCost || 0) / (project.budget || 1)) * 100) : 0}%</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full ${
-                            ((project.actualCost || 0) / (project.budget || 1)) > 0.9 
-                              ? 'bg-red-500' 
-                              : ((project.actualCost || 0) / (project.budget || 1)) > 0.7 
-                                ? 'bg-yellow-500' 
-                                : 'bg-green-500'
-                          }`}
-                          style={{ width: `${Math.min(((project.actualCost || 0) / (project.budget || 1)) * 100, 100)}%` }}
-                        />
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Bütçe Kullanımı</span>
+                          <span className="font-medium">
+                            {project.budget > 0 ? Math.round(((project.actualCost || 0) / project.budget) * 100) : 0}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div 
+                            className="bg-primary h-2 rounded-full transition-all"
+                            style={{ 
+                              width: `${Math.min(project.budget > 0 ? ((project.actualCost || 0) / project.budget) * 100 : 0, 100)}%` 
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* Task Costs */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-foreground">Görev Maliyetleri</h3>
-              <div className="bg-card border border-border rounded-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="text-left p-3 text-sm font-medium text-foreground">Görev</th>
-                      <th className="text-left p-3 text-sm font-medium text-foreground">Proje</th>
-                      <th className="text-left p-3 text-sm font-medium text-foreground">Durum</th>
-                      <th className="text-right p-3 text-sm font-medium text-foreground">Tahmini Maliyet</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tasks.map(task => (
-                      <tr key={task.id} className="border-t border-border">
-                        <td className="p-3 text-sm text-foreground">{task.title}</td>
-                        <td className="p-3 text-sm text-muted-foreground">{task.project}</td>
-                        <td className="p-3 text-sm">
-                          <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
-                            task.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                            task.status === 'in-progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
-                            'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-                          }`}>
-                            {task.status === 'completed' ? 'Tamamlandı' : 
-                             task.status === 'in-progress' ? 'Devam Ediyor' : 'Bekliyor'}
-                          </span>
-                        </td>
-                        <td className="p-3 text-sm text-right font-medium text-foreground">
-                          ₺{(task.estimatedCost || 0).toLocaleString('tr-TR')}
-                        </td>
-                      </tr>
-                    ))}
-                    <tr className="border-t-2 border-border bg-muted/50">
-                      <td colSpan={3} className="p-3 text-sm font-semibold text-foreground">Toplam</td>
-                      <td className="p-3 text-sm text-right font-bold text-foreground">
-                        ₺{tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0).toLocaleString('tr-TR')}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="bg-card border border-border rounded-lg p-4">
+                <div className="space-y-3">
+                  {tasks.map(task => (
+                    <div key={task.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">{task.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
+                        </p>
+                      </div>
+                      <span className="font-semibold text-foreground">
+                        {(task.estimatedCost || 0).toLocaleString('tr-TR')} ₺
+                      </span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
+                    <span className="font-bold text-foreground">Toplam Tahmini Maliyet</span>
+                    <span className="font-bold text-lg text-foreground">
+                      {tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0).toLocaleString('tr-TR')} ₺
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Team Costs */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-foreground">Ekip Maliyetleri</h3>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {teamMembers.map(member => (
-                  <div key={member.id} className="p-4 bg-card border border-border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-foreground">{member.name}</h4>
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                        {member.specialty}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Günlük Ücret</span>
-                      <span className="text-lg font-bold text-foreground">₺{(member.dailyWage || 0).toLocaleString('tr-TR')}</span>
-                    </div>
-                    <div className="mt-2 pt-2 border-t border-border">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Aylık Tahmini</span>
-                        <span className="font-medium text-foreground">₺{((member.dailyWage || 0) * 26).toLocaleString('tr-TR')}</span>
+              <div className="bg-card border border-border rounded-lg p-4">
+                <div className="space-y-3">
+                  {teamMembers.map(member => (
+                    <div key={member.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.specialty}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-foreground">
+                          {(member.dailyWage || 0).toLocaleString('tr-TR')} ₺/gün
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          ~{((member.dailyWage || 0) * 26).toLocaleString('tr-TR')} ₺/ay
+                        </p>
                       </div>
                     </div>
+                  ))}
+                  <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
+                    <span className="font-bold text-foreground">Toplam Günlük Ekip Maliyeti</span>
+                    <span className="font-bold text-lg text-foreground">
+                      {teamMembers.reduce((sum, m) => sum + (m.dailyWage || 0), 0).toLocaleString('tr-TR')} ₺/gün
+                    </span>
                   </div>
-                ))}
-              </div>
-              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-foreground">Toplam Günlük Ekip Maliyeti</span>
-                  <span className="text-xl font-bold text-primary">
-                    ₺{teamMembers.reduce((sum, m) => sum + (m.dailyWage || 0), 0).toLocaleString('tr-TR')}
-                  </span>
                 </div>
               </div>
             </div>
@@ -615,7 +535,7 @@ const Index = () => {
         </Tabs>
       </div>
 
-      {/* Forms */}
+      {/* Modals */}
       <TeamMemberForm
         open={teamFormOpen}
         onOpenChange={(open) => {
@@ -623,8 +543,13 @@ const Index = () => {
           if (!open) setEditingTeamMember(null);
         }}
         onSubmit={editingTeamMember ? handleEditTeamMember : handleAddTeamMember}
-        defaultValues={editingTeamMember || undefined}
         title={editingTeamMember ? "Ekip Üyesini Düzenle" : "Yeni Ekip Üyesi"}
+        defaultValues={editingTeamMember ? {
+          name: editingTeamMember.name,
+          phone: editingTeamMember.phone,
+          specialty: editingTeamMember.specialty,
+          dailyWage: editingTeamMember.dailyWage,
+        } : undefined}
       />
 
       <ProjectForm
@@ -634,8 +559,18 @@ const Index = () => {
           if (!open) setEditingProject(null);
         }}
         onSubmit={editingProject ? handleEditProject : handleAddProject}
-        defaultValues={editingProject || undefined}
-        title={editingProject ? "Projeyi Düzenle" : "Yeni Proje"}
+        title={editingProject ? "Proje Düzenle" : "Yeni Proje"}
+        defaultValues={editingProject ? {
+          title: editingProject.title,
+          location: editingProject.description,
+          startDate: editingProject.startDate,
+          team: editingProject.assignedTeam.join(', '),
+          progress: editingProject.progress,
+          status: editingProject.status,
+          budget: editingProject.budget,
+          actualCost: editingProject.actualCost,
+          revenue: editingProject.revenue,
+        } : undefined}
       />
 
       <TaskForm
@@ -645,8 +580,16 @@ const Index = () => {
           if (!open) setEditingTask(null);
         }}
         onSubmit={editingTask ? handleEditTask : handleAddTask}
-        defaultValues={editingTask || undefined}
         title={editingTask ? "Görevi Düzenle" : "Yeni Görev"}
+        defaultValues={editingTask ? {
+          title: editingTask.title,
+          project: projects.find(p => p.id === editingTask.projectId)?.title || "",
+          assignee: editingTask.assignedTo,
+          dueDate: editingTask.dueDate,
+          status: editingTask.status,
+          priority: editingTask.priority,
+          estimatedCost: editingTask.estimatedCost,
+        } : undefined}
       />
     </div>
   );
