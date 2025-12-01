@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { StatsCard } from "@/components/StatsCard";
@@ -13,8 +14,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const Index = () => {
+  const { t } = useTranslation();
   const { signOut } = useAuth();
   const { projects, isLoading: projectsLoading, addProject, updateProject, deleteProject } = useProjects();
   const { tasks, isLoading: tasksLoading, addTask, updateTask, deleteTask } = useTasks();
@@ -98,7 +101,7 @@ const Index = () => {
       description: "",
       status: data.status,
       priority: data.priority,
-      projectId: projects.find(p => p.title === data.project)?.id || "",
+      projectId: data.project,
       assignedTo: data.assignee,
       dueDate: data.dueDate,
       estimatedCost: data.estimatedCost,
@@ -115,7 +118,7 @@ const Index = () => {
       description: "",
       status: data.status,
       priority: data.priority,
-      projectId: projects.find(p => p.title === data.project)?.id || "",
+      projectId: data.project,
       assignedTo: data.assignee,
       dueDate: data.dueDate,
       estimatedCost: data.estimatedCost,
@@ -148,14 +151,17 @@ const Index = () => {
                 <Building2 className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">İnşaat Yönetim Sistemi</h1>
-                <p className="text-sm text-muted-foreground">Taşeron ve Ekip Takibi</p>
+                <h1 className="text-2xl font-bold text-foreground">{t('app.title')}</h1>
+                <p className="text-sm text-muted-foreground">{t('project.title')}</p>
               </div>
             </div>
-            <Button variant="outline" onClick={signOut} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              Çıkış Yap
-            </Button>
+            <div className="flex items-center gap-3">
+              <LanguageSelector />
+              <Button variant="outline" onClick={signOut} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                {t('app.logout')}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -580,10 +586,12 @@ const Index = () => {
           if (!open) setEditingTask(null);
         }}
         onSubmit={editingTask ? handleEditTask : handleAddTask}
-        title={editingTask ? "Görevi Düzenle" : "Yeni Görev"}
+        title={editingTask ? t('task.edit') : t('task.add')}
+        projects={projects}
+        teamMembers={teamMembers}
         defaultValues={editingTask ? {
           title: editingTask.title,
-          project: projects.find(p => p.id === editingTask.projectId)?.title || "",
+          project: editingTask.projectId,
           assignee: editingTask.assignedTo,
           dueDate: editingTask.dueDate,
           status: editingTask.status,
