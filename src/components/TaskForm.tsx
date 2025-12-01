@@ -2,6 +2,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import type { Project } from "@/hooks/useProjects";
+import type { TeamMember } from "@/hooks/useTeamMembers";
 import {
   Dialog,
   DialogContent,
@@ -27,13 +30,13 @@ import {
 } from "@/components/ui/select";
 
 const formSchema = z.object({
-  title: z.string().min(2, "Görev adı en az 2 karakter olmalı"),
-  project: z.string().min(2, "Proje adı gerekli"),
-  assignee: z.string().min(2, "Sorumlu kişi gerekli"),
-  dueDate: z.string().min(1, "Bitiş tarihi gerekli"),
+  title: z.string().min(2),
+  project: z.string().min(1),
+  assignee: z.string().min(1),
+  dueDate: z.string().min(1),
   status: z.enum(["pending", "in-progress", "completed"]),
   priority: z.enum(["low", "medium", "high"]),
-  estimatedCost: z.coerce.number().min(0, "Maliyet 0'dan büyük olmalı"),
+  estimatedCost: z.coerce.number().min(0),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -44,6 +47,8 @@ interface TaskFormProps {
   onSubmit: (data: FormData) => void;
   defaultValues?: FormData;
   title: string;
+  projects: Project[];
+  teamMembers: TeamMember[];
 }
 
 export const TaskForm = ({
@@ -52,7 +57,10 @@ export const TaskForm = ({
   onSubmit,
   defaultValues,
   title,
+  projects,
+  teamMembers,
 }: TaskFormProps) => {
+  const { t } = useTranslation();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
@@ -101,9 +109,9 @@ export const TaskForm = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Görev Adı</FormLabel>
+                  <FormLabel>{t('task.title')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Örn: Elektrik Tesisatı" {...field} />
+                    <Input placeholder={t('task.titlePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,10 +122,21 @@ export const TaskForm = ({
               name="project"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Proje</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Örn: Konut İnşaatı" {...field} />
-                  </FormControl>
+                  <FormLabel>{t('task.project')}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('task.selectProject')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -127,10 +146,21 @@ export const TaskForm = ({
               name="assignee"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sorumlu Kişi/Ekip</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Örn: Ahmet Yılmaz" {...field} />
-                  </FormControl>
+                  <FormLabel>{t('task.assignee')}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('task.selectAssignee')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {teamMembers.map((member) => (
+                        <SelectItem key={member.id} value={member.id}>
+                          {member.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -140,7 +170,7 @@ export const TaskForm = ({
               name="dueDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bitiş Tarihi</FormLabel>
+                  <FormLabel>{t('task.dueDate')}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -153,17 +183,17 @@ export const TaskForm = ({
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Durum</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>{t('task.status')}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Durum seçin" />
+                        <SelectValue placeholder={t('task.selectStatus')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="pending">Bekliyor</SelectItem>
-                      <SelectItem value="in-progress">Devam Ediyor</SelectItem>
-                      <SelectItem value="completed">Tamamlandı</SelectItem>
+                      <SelectItem value="pending">{t('task.pending')}</SelectItem>
+                      <SelectItem value="in-progress">{t('task.inProgress')}</SelectItem>
+                      <SelectItem value="completed">{t('task.completed')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -175,17 +205,17 @@ export const TaskForm = ({
               name="priority"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Öncelik</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>{t('task.priority')}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Öncelik seçin" />
+                        <SelectValue placeholder={t('task.selectPriority')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="low">Düşük</SelectItem>
-                      <SelectItem value="medium">Orta</SelectItem>
-                      <SelectItem value="high">Yüksek</SelectItem>
+                      <SelectItem value="low">{t('task.low')}</SelectItem>
+                      <SelectItem value="medium">{t('task.medium')}</SelectItem>
+                      <SelectItem value="high">{t('task.high')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -197,9 +227,9 @@ export const TaskForm = ({
               name="estimatedCost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tahmini Maliyet (₺)</FormLabel>
+                  <FormLabel>{t('task.estimatedCost')}</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0" placeholder="Örn: 15000" {...field} />
+                    <Input type="number" min="0" placeholder={t('task.estimatedCostPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -207,9 +237,9 @@ export const TaskForm = ({
             />
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                İptal
+                {t('task.cancel')}
               </Button>
-              <Button type="submit">Kaydet</Button>
+              <Button type="submit">{t('task.save')}</Button>
             </div>
           </form>
         </Form>
