@@ -48,6 +48,8 @@
     "revenue": "Gelir (₺)",
     "assignedTeam": "Atanan Ekip",
     "assignedTeamPlaceholder": "Örn: Ekip A, Ekip B",
+    "photos": "Fotoğraflar",
+    "uploadPhotos": "Fotoğraf Yükle",
     "cancel": "İptal",
     "save": "Kaydet"
   },
@@ -90,6 +92,11 @@
     "dailyWage": "Günlük Ücret (₺)",
     "dailyWagePlaceholder": "Örn: 850",
     "monthlyCost": "Aylık Maliyet",
+    "totalReceivable": "Toplam Alacak (₺)",
+    "totalReceivablePlaceholder": "Örn: 25000",
+    "totalPaid": "Ödenen Tutar (₺)",
+    "totalPaidPlaceholder": "Örn: 15000",
+    "balance": "Kalan",
     "cancel": "İptal",
     "save": "Kaydet"
   },

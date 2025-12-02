@@ -23,6 +23,7 @@ export type Database = {
           description: string | null
           end_date: string
           id: string
+          photos: string[] | null
           progress: number
           revenue: number | null
           start_date: string
@@ -39,6 +40,7 @@ export type Database = {
           description?: string | null
           end_date: string
           id?: string
+          photos?: string[] | null
           progress?: number
           revenue?: number | null
           start_date: string
@@ -55,6 +57,7 @@ export type Database = {
           description?: string | null
           end_date?: string
           id?: string
+          photos?: string[] | null
           progress?: number
           revenue?: number | null
           start_date?: string
@@ -126,6 +129,8 @@ export type Database = {
           name: string
           phone: string
           specialty: string
+          total_paid: number | null
+          total_receivable: number | null
           updated_at: string | null
           user_id: string
         }
@@ -136,6 +141,8 @@ export type Database = {
           name: string
           phone: string
           specialty: string
+          total_paid?: number | null
+          total_receivable?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -146,6 +153,8 @@ export type Database = {
           name?: string
           phone?: string
           specialty?: string
+          total_paid?: number | null
+          total_receivable?: number | null
           updated_at?: string | null
           user_id?: string
         }
