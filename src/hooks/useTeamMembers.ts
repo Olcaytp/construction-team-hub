@@ -8,6 +8,8 @@ export interface TeamMember {
   phone: string;
   specialty: string;
   dailyWage: number;
+  totalReceivable: number;
+  totalPaid: number;
 }
 
 export const useTeamMembers = () => {
@@ -30,6 +32,8 @@ export const useTeamMembers = () => {
         phone: m.phone,
         specialty: m.specialty,
         dailyWage: Number(m.daily_wage) || 0,
+        totalReceivable: Number(m.total_receivable) || 0,
+        totalPaid: Number(m.total_paid) || 0,
       }));
     },
   });
@@ -45,6 +49,8 @@ export const useTeamMembers = () => {
         phone: member.phone,
         specialty: member.specialty,
         daily_wage: member.dailyWage,
+        total_receivable: member.totalReceivable,
+        total_paid: member.totalPaid,
       });
 
       if (error) throw error;
@@ -67,6 +73,8 @@ export const useTeamMembers = () => {
           phone: updates.phone,
           specialty: updates.specialty,
           daily_wage: updates.dailyWage,
+          total_receivable: updates.totalReceivable,
+          total_paid: updates.totalPaid,
         })
         .eq("id", id);
 

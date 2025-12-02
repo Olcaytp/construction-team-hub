@@ -14,6 +14,7 @@ export interface Project {
   budget: number;
   actualCost: number;
   revenue: number;
+  photos: string[];
 }
 
 export const useProjects = () => {
@@ -42,6 +43,7 @@ export const useProjects = () => {
         budget: Number(p.budget) || 0,
         actualCost: Number(p.actual_cost) || 0,
         revenue: Number(p.revenue) || 0,
+        photos: p.photos || [],
       }));
     },
   });
@@ -63,6 +65,7 @@ export const useProjects = () => {
         budget: project.budget,
         actual_cost: project.actualCost,
         revenue: project.revenue,
+        photos: project.photos,
       });
 
       if (error) throw error;
@@ -91,6 +94,7 @@ export const useProjects = () => {
           budget: updates.budget,
           actual_cost: updates.actualCost,
           revenue: updates.revenue,
+          photos: updates.photos,
         })
         .eq("id", id);
 

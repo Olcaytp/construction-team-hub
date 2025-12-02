@@ -48,6 +48,8 @@
     "revenue": "Revenue (₺)",
     "assignedTeam": "Assigned Team",
     "assignedTeamPlaceholder": "e.g., Team A, Team B",
+    "photos": "Photos",
+    "uploadPhotos": "Upload Photos",
     "cancel": "Cancel",
     "save": "Save"
   },
@@ -90,6 +92,11 @@
     "dailyWage": "Daily Wage (₺)",
     "dailyWagePlaceholder": "e.g., 850",
     "monthlyCost": "Monthly Cost",
+    "totalReceivable": "Total Receivable (₺)",
+    "totalReceivablePlaceholder": "e.g., 25000",
+    "totalPaid": "Total Paid (₺)",
+    "totalPaidPlaceholder": "e.g., 15000",
+    "balance": "Balance",
     "cancel": "Cancel",
     "save": "Save"
   },

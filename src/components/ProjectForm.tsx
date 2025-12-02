@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -25,17 +27,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Upload, X } from "lucide-react";
 
 const formSchema = z.object({
-  title: z.string().min(2, "Proje adı en az 2 karakter olmalı"),
-  location: z.string().min(2, "Lokasyon en az 2 karakter olmalı"),
-  startDate: z.string().min(1, "Başlangıç tarihi gerekli"),
-  team: z.string().min(2, "Taşeron/Ekip adı gerekli"),
-  status: z.enum(["active", "completed", "pending"]),
+  title: z.string().min(2),
+  description: z.string(),
+  startDate: z.string().min(1),
+  endDate: z.string().min(1),
+  assignedTeam: z.string(),
+  status: z.enum(["planning", "active", "completed"]),
   progress: z.coerce.number().min(0).max(100),
-  budget: z.coerce.number().min(0, "Bütçe 0'dan büyük olmalı"),
-  actualCost: z.coerce.number().min(0, "Maliyet 0'dan büyük olmalı"),
-  revenue: z.coerce.number().min(0, "Gelir 0'dan büyük olmalı"),
+  budget: z.coerce.number().min(0),
+  actualCost: z.coerce.number().min(0),
+  revenue: z.coerce.number().min(0),
+  photos: z.array(z.string()).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -55,133 +62,213 @@ export const ProjectForm = ({
   defaultValues,
   title,
 }: ProjectFormProps) => {
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+  const [photoUrls, setPhotoUrls] = useState<string[]>(defaultValues?.photos || []);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
       title: "",
-      location: "",
+      description: "",
       startDate: "",
-      team: "",
-      status: "pending",
+      endDate: "",
+      assignedTeam: "",
+      status: "planning",
       progress: 0,
       budget: 0,
       actualCost: 0,
       revenue: 0,
+      photos: [],
     },
   });
 
   useEffect(() => {
     if (defaultValues) {
       form.reset(defaultValues);
+      setPhotoUrls(defaultValues.photos || []);
     } else {
       form.reset({
         title: "",
-        location: "",
+        description: "",
         startDate: "",
-        team: "",
-        status: "pending",
+        endDate: "",
+        assignedTeam: "",
+        status: "planning",
         progress: 0,
         budget: 0,
         actualCost: 0,
         revenue: 0,
+        photos: [],
       });
+      setPhotoUrls([]);
     }
   }, [defaultValues, form]);
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    const newUrls: string[] = [];
+
+    try {
+      for (const file of Array.from(files)) {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("project-photos")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from("project-photos")
+          .getPublicUrl(filePath);
+
+        newUrls.push(data.publicUrl);
+      }
+
+      const updatedUrls = [...photoUrls, ...newUrls];
+      setPhotoUrls(updatedUrls);
+      form.setValue("photos", updatedUrls);
+      toast({ title: t("project.uploadPhotos") + " ✓" });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removePhoto = (url: string) => {
+    const updatedUrls = photoUrls.filter((u) => u !== url);
+    setPhotoUrls(updatedUrls);
+    form.setValue("photos", updatedUrls);
+  };
+
   const handleSubmit = (data: FormData) => {
-    onSubmit(data);
+    onSubmit({ ...data, photos: photoUrls });
     form.reset();
+    setPhotoUrls([]);
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Proje Adı</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Örn: Konut İnşaatı" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Lokasyon</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Örn: Kadıköy, İstanbul" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Başlangıç Tarihi</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="team"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Taşeron/Ekip</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Örn: Yılmaz İnşaat Ekibi" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Durum</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("project.title")}</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Durum seçin" />
-                      </SelectTrigger>
+                      <Input placeholder={t("project.titlePlaceholder")} {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pending">Bekliyor</SelectItem>
-                      <SelectItem value="active">Devam Ediyor</SelectItem>
-                      <SelectItem value="completed">Tamamlandı</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("project.status")}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("project.selectStatus")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="planning">{t("project.planning")}</SelectItem>
+                        <SelectItem value="active">{t("project.active")}</SelectItem>
+                        <SelectItem value="completed">{t("project.completed")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("project.description")}</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder={t("project.descriptionPlaceholder")} {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("project.startDate")}</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("project.endDate")}</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="assignedTeam"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("project.assignedTeam")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t("project.assignedTeamPlaceholder")} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="progress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>İlerleme (%)</FormLabel>
+                  <FormLabel>{t("project.progress")} (%)</FormLabel>
                   <FormControl>
                     <Input type="number" min="0" max="100" {...field} />
                   </FormControl>
@@ -189,50 +276,87 @@ export const ProjectForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="budget"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bütçe (₺)</FormLabel>
-                  <FormControl>
-                    <Input type="number" min="0" placeholder="Örn: 500000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="actualCost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gerçekleşen Maliyet (₺)</FormLabel>
-                  <FormControl>
-                    <Input type="number" min="0" placeholder="Örn: 325000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="revenue"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gelir (₺)</FormLabel>
-                  <FormControl>
-                    <Input type="number" min="0" placeholder="Örn: 450000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                İptal
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="budget"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("project.budget")}</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="0" placeholder={t("project.budgetPlaceholder")} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="actualCost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("project.actualCost")}</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="0" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="revenue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("project.revenue")}</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="0" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <FormLabel>{t("project.photos")}</FormLabel>
+              <div className="flex flex-wrap gap-2">
+                {photoUrls.map((url, index) => (
+                  <div key={index} className="relative group">
+                    <img src={url} alt={`Photo ${index + 1}`} className="w-20 h-20 object-cover rounded" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removePhoto(url)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+                <label className="w-20 h-20 border-2 border-dashed rounded flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                    disabled={uploading}
+                  />
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                </label>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+                {t("project.cancel")}
               </Button>
-              <Button type="submit">Kaydet</Button>
+              <Button type="submit" disabled={uploading} className="w-full sm:w-auto">
+                {t("project.save")}
+              </Button>
             </div>
           </form>
         </Form>

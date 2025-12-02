@@ -48,6 +48,8 @@
     "revenue": "Intäkt (₺)",
     "assignedTeam": "Tilldelat team",
     "assignedTeamPlaceholder": "t.ex., Team A, Team B",
+    "photos": "Foton",
+    "uploadPhotos": "Ladda upp foton",
     "cancel": "Avbryt",
     "save": "Spara"
   },
@@ -90,6 +92,11 @@
     "dailyWage": "Dagslön (₺)",
     "dailyWagePlaceholder": "t.ex., 850",
     "monthlyCost": "Månadskostnad",
+    "totalReceivable": "Total fordran (₺)",
+    "totalReceivablePlaceholder": "t.ex., 25000",
+    "totalPaid": "Totalt betalt (₺)",
+    "totalPaidPlaceholder": "t.ex., 15000",
+    "balance": "Balans",
     "cancel": "Avbryt",
     "save": "Spara"
   },

@@ -57,15 +57,16 @@ const Index = () => {
   const handleAddProject = (data: any) => {
     const projectData = {
       title: data.title,
-      description: data.location,
+      description: data.description || "",
       status: data.status,
       progress: data.progress,
       startDate: data.startDate,
-      endDate: data.startDate,
-      assignedTeam: data.team.split(',').map((t: string) => t.trim()),
+      endDate: data.endDate,
+      assignedTeam: data.assignedTeam ? data.assignedTeam.split(',').map((t: string) => t.trim()) : [],
       budget: data.budget,
       actualCost: data.actualCost,
       revenue: data.revenue,
+      photos: data.photos || [],
     };
     addProject(projectData);
     setProjectFormOpen(false);
@@ -76,15 +77,16 @@ const Index = () => {
     const projectData = {
       id: editingProject.id,
       title: data.title,
-      description: data.location,
+      description: data.description || "",
       status: data.status,
       progress: data.progress,
       startDate: data.startDate,
-      endDate: data.startDate,
-      assignedTeam: data.team.split(',').map((t: string) => t.trim()),
+      endDate: data.endDate,
+      assignedTeam: data.assignedTeam ? data.assignedTeam.split(',').map((t: string) => t.trim()) : [],
       budget: data.budget,
       actualCost: data.actualCost,
       revenue: data.revenue,
+      photos: data.photos || [],
     };
     updateProject(projectData);
     setEditingProject(null);
@@ -143,77 +145,77 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary p-2 rounded-lg">
-                <Building2 className="h-6 w-6 text-primary-foreground" />
+      <header className="border-b border-border bg-card sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="bg-primary p-1.5 sm:p-2 rounded-lg flex-shrink-0">
+                <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">{t('app.title')}</h1>
-                <p className="text-sm text-muted-foreground">{t('project.title')}</p>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold text-foreground truncate">{t('app.title')}</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{t('app.dashboard')}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <LanguageSelector />
-              <Button variant="outline" onClick={signOut} className="gap-2">
+              <Button variant="outline" onClick={signOut} size="sm" className="gap-2">
                 <LogOut className="h-4 w-4" />
-                {t('app.logout')}
+                <span className="hidden sm:inline">{t('app.logout')}</span>
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="bg-muted">
-            <TabsTrigger value="dashboard" className="gap-2">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
+        <Tabs defaultValue="dashboard" className="space-y-4 sm:space-y-6">
+          <TabsList className="bg-muted w-full sm:w-auto overflow-x-auto flex justify-start sm:justify-center">
+            <TabsTrigger value="dashboard" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <LayoutDashboard className="h-4 w-4" />
-              Özet
+              <span className="hidden sm:inline">{t('app.dashboard')}</span>
             </TabsTrigger>
-            <TabsTrigger value="projects" className="gap-2">
+            <TabsTrigger value="projects" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <FolderKanban className="h-4 w-4" />
-              Projeler
+              <span className="hidden sm:inline">{t('app.projects')}</span>
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="gap-2">
+            <TabsTrigger value="tasks" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <ListTodo className="h-4 w-4" />
-              Görevler
+              <span className="hidden sm:inline">{t('app.tasks')}</span>
             </TabsTrigger>
-            <TabsTrigger value="teams" className="gap-2">
+            <TabsTrigger value="teams" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <Users className="h-4 w-4" />
-              Ekipler
+              <span className="hidden sm:inline">{t('app.team')}</span>
             </TabsTrigger>
-            <TabsTrigger value="finance" className="gap-2">
+            <TabsTrigger value="finance" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <DollarSign className="h-4 w-4" />
-              Ekonomi
+              <span className="hidden sm:inline">{t('app.economy')}</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6">
+          <TabsContent value="dashboard" className="space-y-4 sm:space-y-6">
             {/* Stats */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatsCard
-                title="Aktif Projeler"
+                title={t('stats.totalProjects')}
                 value={projects.filter(p => p.status === 'active').length}
                 icon={FolderKanban}
                 variant="default"
               />
               <StatsCard
-                title="Devam Eden İşler"
+                title={t('stats.activeTasks')}
                 value={tasks.filter(t => t.status === 'in-progress').length}
                 icon={ListTodo}
                 variant="info"
               />
               <StatsCard
-                title="Tamamlanan İşler"
+                title={t('common.edit')}
                 value={tasks.filter(t => t.status === 'completed').length}
                 icon={ListTodo}
                 variant="success"
               />
               <StatsCard
-                title="Ekip Üyeleri"
+                title={t('stats.teamMembers')}
                 value={teamMembers.length}
                 icon={Users}
                 variant="warning"
@@ -221,9 +223,9 @@ const Index = () => {
             </div>
 
             {/* Recent Projects */}
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-foreground">Aktif Projeler</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.projects')}</h2>
+              <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {projects.filter(p => p.status === 'active').slice(0, 3).map(project => (
                   <ProjectCard
                     key={project.id}
@@ -233,6 +235,7 @@ const Index = () => {
                     team={project.assignedTeam.join(', ')}
                     progress={project.progress}
                     status={project.status as any}
+                    photos={project.photos}
                     onClick={() => {
                       setEditingProject(project);
                       setProjectFormOpen(true);
@@ -243,9 +246,9 @@ const Index = () => {
             </div>
 
             {/* Recent Tasks */}
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-foreground">Son Görevler</h2>
-              <div className="space-y-3">
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.tasks')}</h2>
+              <div className="space-y-2 sm:space-y-3">
                 {tasks.slice(0, 3).map(task => (
                   <TaskItem
                     key={task.id}
@@ -262,18 +265,18 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="projects" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Tüm Projeler</h2>
+          <TabsContent value="projects" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.projects')}</h2>
               <Button onClick={() => {
                 setEditingProject(null);
                 setProjectFormOpen(true);
-              }} className="gap-2">
+              }} className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
-                Yeni Proje
+                {t('project.add')}
               </Button>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {projects.map(project => (
                 <div key={project.id} className="relative group">
                   <ProjectCard
@@ -283,6 +286,7 @@ const Index = () => {
                     team={project.assignedTeam.join(', ')}
                     progress={project.progress}
                     status={project.status as any}
+                    photos={project.photos}
                     onClick={() => {
                       setEditingProject(project);
                       setProjectFormOpen(true);
@@ -318,18 +322,18 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="tasks" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Tüm Görevler</h2>
+          <TabsContent value="tasks" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.tasks')}</h2>
               <Button onClick={() => {
                 setEditingTask(null);
                 setTaskFormOpen(true);
-              }} className="gap-2">
+              }} className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
-                Yeni Görev
+                {t('task.add')}
               </Button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {tasks.map(task => (
                 <div key={task.id} className="flex gap-2 group">
                   <div className="flex-1">
@@ -367,18 +371,18 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="teams" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Ekip Üyeleri</h2>
+          <TabsContent value="teams" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.team')}</h2>
               <Button onClick={() => {
                 setEditingTeamMember(null);
                 setTeamFormOpen(true);
-              }} className="gap-2">
+              }} className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
-                Yeni Üye
+                {t('team.add')}
               </Button>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {teamMembers.map(member => (
                 <TeamMemberCard
                   key={member.id}
@@ -386,6 +390,9 @@ const Index = () => {
                   name={member.name}
                   phone={member.phone}
                   specialty={member.specialty}
+                  dailyWage={member.dailyWage}
+                  totalReceivable={member.totalReceivable}
+                  totalPaid={member.totalPaid}
                   onEdit={() => {
                     setEditingTeamMember(member);
                     setTeamFormOpen(true);
@@ -396,32 +403,32 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="finance" className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Finansal Özet</h2>
+          <TabsContent value="finance" className="space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.economy')}</h2>
             
             {/* Financial Summary Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatsCard
-                title="Toplam Bütçe"
-                value={`₺${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString('tr-TR')}`}
+                title={t('stats.totalBudget')}
+                value={`₺${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString()}`}
                 icon={DollarSign}
                 variant="default"
               />
               <StatsCard
-                title="Toplam Gelir"
-                value={`₺${projects.reduce((sum, p) => sum + (p.revenue || 0), 0).toLocaleString('tr-TR')}`}
+                title={t('stats.totalRevenue')}
+                value={`₺${projects.reduce((sum, p) => sum + (p.revenue || 0), 0).toLocaleString()}`}
                 icon={DollarSign}
                 variant="success"
               />
               <StatsCard
-                title="Toplam Maliyet"
-                value={`₺${projects.reduce((sum, p) => sum + (p.actualCost || 0), 0).toLocaleString('tr-TR')}`}
+                title={t('stats.totalCost')}
+                value={`₺${projects.reduce((sum, p) => sum + (p.actualCost || 0), 0).toLocaleString()}`}
                 icon={DollarSign}
                 variant="warning"
               />
               <StatsCard
-                title="Net Kar"
-                value={`₺${(projects.reduce((sum, p) => sum + (p.revenue || 0), 0) - projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)).toLocaleString('tr-TR')}`}
+                title={t('stats.netProfit')}
+                value={`₺${(projects.reduce((sum, p) => sum + (p.revenue || 0), 0) - projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)).toLocaleString()}`}
                 icon={DollarSign}
                 variant="info"
               />
@@ -549,12 +556,14 @@ const Index = () => {
           if (!open) setEditingTeamMember(null);
         }}
         onSubmit={editingTeamMember ? handleEditTeamMember : handleAddTeamMember}
-        title={editingTeamMember ? "Ekip Üyesini Düzenle" : "Yeni Ekip Üyesi"}
+        title={editingTeamMember ? t('team.edit') : t('team.add')}
         defaultValues={editingTeamMember ? {
           name: editingTeamMember.name,
           phone: editingTeamMember.phone,
           specialty: editingTeamMember.specialty,
           dailyWage: editingTeamMember.dailyWage,
+          totalReceivable: editingTeamMember.totalReceivable || 0,
+          totalPaid: editingTeamMember.totalPaid || 0,
         } : undefined}
       />
 
@@ -565,17 +574,19 @@ const Index = () => {
           if (!open) setEditingProject(null);
         }}
         onSubmit={editingProject ? handleEditProject : handleAddProject}
-        title={editingProject ? "Proje Düzenle" : "Yeni Proje"}
+        title={editingProject ? t('project.edit') : t('project.add')}
         defaultValues={editingProject ? {
           title: editingProject.title,
-          location: editingProject.description,
+          description: editingProject.description,
           startDate: editingProject.startDate,
-          team: editingProject.assignedTeam.join(', '),
+          endDate: editingProject.endDate,
+          assignedTeam: editingProject.assignedTeam.join(', '),
           progress: editingProject.progress,
           status: editingProject.status,
           budget: editingProject.budget,
           actualCost: editingProject.actualCost,
           revenue: editingProject.revenue,
+          photos: editingProject.photos || [],
         } : undefined}
       />
 

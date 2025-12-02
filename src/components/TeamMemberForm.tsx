@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -20,10 +21,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Ad Soyad en az 2 karakter olmalı"),
-  phone: z.string().min(10, "Geçerli bir telefon numarası girin"),
-  specialty: z.string().min(2, "Uzmanlık alanı en az 2 karakter olmalı"),
-  dailyWage: z.coerce.number().min(0, "Günlük ücret 0'dan büyük olmalı"),
+  name: z.string().min(2),
+  phone: z.string().min(10),
+  specialty: z.string().min(2),
+  dailyWage: z.coerce.number().min(0),
+  totalReceivable: z.coerce.number().min(0),
+  totalPaid: z.coerce.number().min(0),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -43,6 +46,8 @@ export const TeamMemberForm = ({
   defaultValues,
   title,
 }: TeamMemberFormProps) => {
+  const { t } = useTranslation();
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
@@ -50,6 +55,8 @@ export const TeamMemberForm = ({
       phone: "",
       specialty: "",
       dailyWage: 0,
+      totalReceivable: 0,
+      totalPaid: 0,
     },
   });
 
@@ -62,6 +69,8 @@ export const TeamMemberForm = ({
         phone: "",
         specialty: "",
         dailyWage: 0,
+        totalReceivable: 0,
+        totalPaid: 0,
       });
     }
   }, [defaultValues, form]);
@@ -74,7 +83,7 @@ export const TeamMemberForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -85,58 +94,94 @@ export const TeamMemberForm = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ad Soyad</FormLabel>
+                  <FormLabel>{t("team.name")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Örn: Ahmet Yılmaz" {...field} />
+                    <Input placeholder={t("team.namePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefon</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Örn: 0555 123 45 67" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="specialty"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Uzmanlık/Meslek</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Örn: Elektrikçi, Boyacı, Sıvacı" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("team.phone")}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t("team.phonePlaceholder")} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="specialty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("team.specialty")}</FormLabel>
+                    <FormControl>
+                      <Input placeholder={t("team.specialtyPlaceholder")} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name="dailyWage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Günlük Ücret (₺)</FormLabel>
+                  <FormLabel>{t("team.dailyWage")}</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0" placeholder="Örn: 800" {...field} />
+                    <Input type="number" min="0" placeholder={t("team.dailyWagePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                İptal
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="totalReceivable"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("team.totalReceivable")}</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="0" placeholder={t("team.totalReceivablePlaceholder")} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="totalPaid"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("team.totalPaid")}</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="0" placeholder={t("team.totalPaidPlaceholder")} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+                {t("team.cancel")}
               </Button>
-              <Button type="submit">Kaydet</Button>
+              <Button type="submit" className="w-full sm:w-auto">
+                {t("team.save")}
+              </Button>
             </div>
           </form>
         </Form>
