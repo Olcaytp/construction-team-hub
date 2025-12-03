@@ -6,6 +6,7 @@
     "tasks": "Görevler",
     "team": "Ekip",
     "economy": "Ekonomi",
+    "materials": "Malzemeler",
     "logout": "Çıkış Yap"
   },
   "auth": {
@@ -99,6 +100,35 @@
     "balance": "Kalan",
     "cancel": "İptal",
     "save": "Kaydet"
+  },
+  "material": {
+    "add": "Malzeme Ekle",
+    "edit": "Malzeme Düzenle",
+    "name": "Malzeme Adı",
+    "namePlaceholder": "Örn: Çimento",
+    "quantity": "Miktar",
+    "unit": "Birim",
+    "selectUnit": "Birim seçin",
+    "estimatedCost": "Tahmini Maliyet (₺)",
+    "actualCost": "Gerçek Maliyet (₺)",
+    "status": "Durum",
+    "selectStatus": "Durum seçin",
+    "planned": "Planlandı",
+    "ordered": "Sipariş Edildi",
+    "delivered": "Teslim Edildi",
+    "inUse": "Kullanımda",
+    "supplier": "Tedarikçi",
+    "supplierPlaceholder": "Örn: ABC Malzeme Ltd.",
+    "notes": "Notlar",
+    "notesPlaceholder": "Ek notlar...",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "selectProject": "Proje Seçin",
+    "selectProjectFirst": "Malzemeleri görmek için önce bir proje seçin",
+    "aiSuggest": "AI ile Öner",
+    "totalMaterials": "Toplam Malzeme",
+    "totalEstimatedCost": "Tahmini Toplam",
+    "totalActualCost": "Gerçek Toplam"
   },
   "common": {
     "edit": "Düzenle",

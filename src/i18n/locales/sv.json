@@ -6,6 +6,7 @@
     "tasks": "Uppgifter",
     "team": "Team",
     "economy": "Ekonomi",
+    "materials": "Material",
     "logout": "Logga ut"
   },
   "auth": {
@@ -99,6 +100,35 @@
     "balance": "Balans",
     "cancel": "Avbryt",
     "save": "Spara"
+  },
+  "material": {
+    "add": "Lägg till material",
+    "edit": "Redigera material",
+    "name": "Materialnamn",
+    "namePlaceholder": "t.ex., Cement",
+    "quantity": "Mängd",
+    "unit": "Enhet",
+    "selectUnit": "Välj enhet",
+    "estimatedCost": "Beräknad kostnad (₺)",
+    "actualCost": "Faktisk kostnad (₺)",
+    "status": "Status",
+    "selectStatus": "Välj status",
+    "planned": "Planerad",
+    "ordered": "Beställd",
+    "delivered": "Levererad",
+    "inUse": "I användning",
+    "supplier": "Leverantör",
+    "supplierPlaceholder": "t.ex., ABC Material AB",
+    "notes": "Anteckningar",
+    "notesPlaceholder": "Ytterligare anteckningar...",
+    "cancel": "Avbryt",
+    "save": "Spara",
+    "selectProject": "Välj projekt",
+    "selectProjectFirst": "Välj ett projekt för att visa material",
+    "aiSuggest": "AI-förslag",
+    "totalMaterials": "Totalt material",
+    "totalEstimatedCost": "Beräknad total",
+    "totalActualCost": "Faktisk total"
   },
   "common": {
     "edit": "Redigera",
