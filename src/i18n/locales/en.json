@@ -6,6 +6,7 @@
     "tasks": "Tasks",
     "team": "Team",
     "economy": "Economy",
+    "materials": "Materials",
     "logout": "Logout"
   },
   "auth": {
@@ -99,6 +100,35 @@
     "balance": "Balance",
     "cancel": "Cancel",
     "save": "Save"
+  },
+  "material": {
+    "add": "Add Material",
+    "edit": "Edit Material",
+    "name": "Material Name",
+    "namePlaceholder": "e.g., Cement",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "selectUnit": "Select unit",
+    "estimatedCost": "Estimated Cost (₺)",
+    "actualCost": "Actual Cost (₺)",
+    "status": "Status",
+    "selectStatus": "Select status",
+    "planned": "Planned",
+    "ordered": "Ordered",
+    "delivered": "Delivered",
+    "inUse": "In Use",
+    "supplier": "Supplier",
+    "supplierPlaceholder": "e.g., ABC Materials Ltd.",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "selectProject": "Select Project",
+    "selectProjectFirst": "Select a project to view materials",
+    "aiSuggest": "AI Suggest",
+    "totalMaterials": "Total Materials",
+    "totalEstimatedCost": "Estimated Total",
+    "totalActualCost": "Actual Total"
   },
   "common": {
     "edit": "Edit",
