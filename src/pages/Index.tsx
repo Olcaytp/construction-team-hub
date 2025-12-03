@@ -9,7 +9,8 @@ import { TeamMemberCard } from "@/components/TeamMemberCard";
 import { TeamMemberForm } from "@/components/TeamMemberForm";
 import { ProjectForm } from "@/components/ProjectForm";
 import { TaskForm } from "@/components/TaskForm";
-import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut } from "lucide-react";
+import { MaterialsSection } from "@/components/MaterialsSection";
+import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
@@ -190,6 +191,10 @@ const Index = () => {
             <TabsTrigger value="finance" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">{t('app.economy')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="materials" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
+              <Package className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('app.materials')}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -544,6 +549,10 @@ const Index = () => {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="materials" className="space-y-4 sm:space-y-6">
+            <MaterialsSection />
           </TabsContent>
         </Tabs>
       </div>

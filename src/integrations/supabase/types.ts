@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      materials: {
+        Row: {
+          actual_cost: number | null
+          created_at: string
+          estimated_cost: number | null
+          id: string
+          name: string
+          notes: string | null
+          project_id: string
+          quantity: number
+          status: string
+          supplier: string | null
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          name: string
+          notes?: string | null
+          project_id: string
+          quantity?: number
+          status?: string
+          supplier?: string | null
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_cost?: number | null
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          name?: string
+          notes?: string | null
+          project_id?: string
+          quantity?: number
+          status?: string
+          supplier?: string | null
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           actual_cost: number | null
