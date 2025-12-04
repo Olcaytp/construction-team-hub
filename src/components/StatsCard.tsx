@@ -26,9 +26,6 @@ export const StatsCard = ({ title, value, icon: Icon, trend, variant = "default"
             <p className="text-3xl font-bold text-foreground">{value}</p>
             {trend && <p className="text-xs text-muted-foreground">{trend}</p>}
           </div>
-          <div className={`p-3 rounded-lg ${variantStyles[variant]}`}>
-            <Icon className="h-6 w-6" />
-          </div>
         </div>
       </CardContent>
     </Card>

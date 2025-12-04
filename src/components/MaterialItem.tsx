@@ -59,9 +59,9 @@ export const MaterialItem = ({
               </div>
               <div className="mt-1 text-sm text-muted-foreground space-y-1">
                 <p>{t('material.quantity')}: {quantity} {unit}</p>
-                <p>{t('material.estimatedCost')}: ₺{estimatedCost.toLocaleString()}</p>
+                <p>{t('material.estimatedCost')}: {estimatedCost.toLocaleString()}</p>
                 {actualCost > 0 && (
-                  <p>{t('material.actualCost')}: ₺{actualCost.toLocaleString()}</p>
+                  <p>{t('material.actualCost')}: {actualCost.toLocaleString()}</p>
                 )}
                 {supplier && <p>{t('material.supplier')}: {supplier}</p>}
               </div>

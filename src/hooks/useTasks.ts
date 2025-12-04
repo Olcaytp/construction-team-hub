@@ -44,7 +44,9 @@ export const useTasks = () => {
 
   const addTask = useMutation({
     mutationFn: async (task: Omit<Task, "id">) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       const { error } = await supabase.from("tasks").insert({
@@ -66,7 +68,11 @@ export const useTasks = () => {
       toast({ title: "Görev eklendi" });
     },
     onError: (error) => {
-      toast({ variant: "destructive", title: "Hata", description: error.message });
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: error.message,
+      });
     },
   });
 
@@ -93,7 +99,11 @@ export const useTasks = () => {
       toast({ title: "Görev güncellendi" });
     },
     onError: (error) => {
-      toast({ variant: "destructive", title: "Hata", description: error.message });
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: error.message,
+      });
     },
   });
 
@@ -107,7 +117,11 @@ export const useTasks = () => {
       toast({ title: "Görev silindi" });
     },
     onError: (error) => {
-      toast({ variant: "destructive", title: "Hata", description: error.message });
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: error.message,
+      });
     },
   });
 

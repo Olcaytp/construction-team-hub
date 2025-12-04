@@ -18,7 +18,51 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
 const Index = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Dil bilgisini buradan çekiyoruz:
+    const currentLanguage = i18n.language; // 'tr', 'sv', 'en' gibi bir değer dönecektir.
+    const isSwedish = currentLanguage.startsWith('sv'); // 'sv' ile başlayan dilleri (sv-SE gibi) İsveççe kabul ederiz.
+    const isEnglish = currentLanguage.startsWith('en'); // 'en' ile başlayan dilleri (en-US gibi) İngilizce kabul ederiz.
+
+    const formatCurrency = (amount: number) => {
+        const currentLanguage = i18n.language;
+
+        let locale: string;
+        let currencySymbol: string;
+        let symbolAtEnd: boolean = false; 
+
+        if (currentLanguage.startsWith('sv')) {
+            // İsveççe (Krona)
+            locale = 'sv-SE';
+            currencySymbol = 'kr';
+            symbolAtEnd = true; 
+        } else if (currentLanguage.startsWith('en')) {
+            // İngilizce (Dolar)
+            locale = 'en-US';
+            currencySymbol = '$';
+            symbolAtEnd = false; 
+        } else {
+            // Türkçe ve Diğerleri (Lira - Varsayılan)
+            locale = 'tr-TR';
+            currencySymbol = '₺';
+            symbolAtEnd = false; 
+        }
+
+        // Sayıyı yerel ayara göre formatlama
+        const formattedAmount = amount.toLocaleString(locale, {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        });
+
+        // Sembolü dile göre yerleştirme
+        if (symbolAtEnd) {
+            return `${formattedAmount} ${currencySymbol}`;
+        } else {
+            return `${currencySymbol}${formattedAmount}`;
+        }
+    };
+
   const { signOut } = useAuth();
   const { projects, isLoading: projectsLoading, addProject, updateProject, deleteProject } = useProjects();
   const { tasks, isLoading: tasksLoading, addTask, updateTask, deleteTask } = useTasks();
@@ -413,141 +457,231 @@ const Index = () => {
             
             {/* Financial Summary Cards */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <StatsCard
+            <StatsCard
                 title={t('stats.totalBudget')}
-                value={`₺${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString()}`}
+                // GÜNCELLENMİŞ
+                value={formatCurrency(
+                    projects.reduce((sum, p) => sum + (p.budget || 0), 0)
+                )}
                 icon={DollarSign}
                 variant="default"
-              />
-              <StatsCard
+            />
+            <StatsCard
                 title={t('stats.totalRevenue')}
-                value={`₺${projects.reduce((sum, p) => sum + (p.revenue || 0), 0).toLocaleString()}`}
+                // GÜNCELLENMİŞ
+                value={formatCurrency(
+                    projects.reduce((sum, p) => sum + (p.revenue || 0), 0)
+                )}
                 icon={DollarSign}
                 variant="success"
-              />
-              <StatsCard
+            />
+            <StatsCard
                 title={t('stats.totalCost')}
-                value={`₺${projects.reduce((sum, p) => sum + (p.actualCost || 0), 0).toLocaleString()}`}
+                // GÜNCELLENMİŞ
+                value={formatCurrency(
+                    projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)
+                )}
                 icon={DollarSign}
                 variant="warning"
-              />
-              <StatsCard
+            />
+            <StatsCard
                 title={t('stats.netProfit')}
-                value={`₺${(projects.reduce((sum, p) => sum + (p.revenue || 0), 0) - projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)).toLocaleString()}`}
+                // GÜNCELLENMİŞ
+                value={formatCurrency(
+                    projects.reduce((sum, p) => sum + (p.revenue || 0), 0) - projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)
+                )}
                 icon={DollarSign}
                 variant="info"
-              />
-            </div>
+            />
+        </div>
 
             {/* Project Financial Details */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Proje Bazlı Finansal Durum</h3>
-              <div className="grid gap-4">
-                {projects.map(project => {
-                  const profit = (project.revenue || 0) - (project.actualCost || 0);
-                  const isProfitable = profit >= 0;
-                  
-                  return (
-                    <div key={project.id} className="p-4 bg-card border border-border rounded-lg">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-foreground">{project.title}</h4>
-                        <span className={`text-sm font-medium ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
-                          {isProfitable ? '+' : ''}{profit.toLocaleString('tr-TR')} ₺
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 mb-3">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Bütçe</p>
-                          <p className="font-semibold">{(project.budget || 0).toLocaleString('tr-TR')} ₺</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Gelir</p>
-                          <p className="font-semibold text-green-600">{(project.revenue || 0).toLocaleString('tr-TR')} ₺</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Maliyet</p>
-                          <p className="font-semibold text-orange-600">{(project.actualCost || 0).toLocaleString('tr-TR')} ₺</p>
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Bütçe Kullanımı</span>
-                          <span className="font-medium">
-                            {project.budget > 0 ? Math.round(((project.actualCost || 0) / project.budget) * 100) : 0}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-2">
-                          <div 
-                            className="bg-primary h-2 rounded-full transition-all"
-                            style={{ 
-                              width: `${Math.min(project.budget > 0 ? ((project.actualCost || 0) / project.budget) * 100 : 0, 100)}%` 
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                <h3 className="text-xl font-semibold text-foreground">Proje Bazlı Finansal Durum</h3>
+                <div className="grid gap-4">
+                    {projects.map(project => {
+                        const profit = (project.revenue || 0) - (project.actualCost || 0);
+                        const isProfitable = profit >= 0;
+                        
+                        return (
+                            <div key={project.id} className="p-4 bg-card border border-border rounded-lg">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h4 className="font-semibold text-foreground">{project.title}</h4>
+                                    <span className={`text-sm font-medium ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
+                                        {/* Kâr/Zarar: + veya - işaretini ve formatlamayı formatCurrency halledecek */}
+                                        {formatCurrency(profit)}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4 mb-3">
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Bütçe</p>
+                                        {/* Bütçe Değeri */}
+                                        <p className="font-semibold">{formatCurrency(project.budget || 0)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Gelir</p>
+                                        {/* Gelir Değeri */}
+                                        <p className="font-semibold text-green-600">{formatCurrency(project.revenue || 0)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Maliyet</p>
+                                        {/* Maliyet Değeri */}
+                                        <p className="font-semibold text-orange-600">{formatCurrency(project.actualCost || 0)}</p>
+                                    </div>
+                                </div>
+                                {/* ... Bütçe Kullanımı çubuğu ve yüzdesi (burada değişiklik yok) ... */}
+                                <div className="space-y-1">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-muted-foreground">Bütçe Kullanımı</span>
+                                        <span className="font-medium">
+                                            {project.budget > 0 ? Math.round(((project.actualCost || 0) / project.budget) * 100) : 0}%
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-muted rounded-full h-2">
+                                        <div 
+                                            className="bg-primary h-2 rounded-full transition-all"
+                                            style={{ 
+                                                width: `${Math.min(project.budget > 0 ? ((project.actualCost || 0) / project.budget) * 100 : 0, 100)}%` 
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Task Costs */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Görev Maliyetleri</h3>
-              <div className="bg-card border border-border rounded-lg p-4">
-                <div className="space-y-3">
-                  {tasks.map(task => (
-                    <div key={task.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{task.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
-                        </p>
-                      </div>
-                      <span className="font-semibold text-foreground">
-                        {(task.estimatedCost || 0).toLocaleString('tr-TR')} ₺
-                      </span>
+                {/* Başlık yerelleştirilmemiş görünüyor, t() fonksiyonu ile yerelleştirmeniz önerilir */}
+                <h3 className="text-xl font-semibold text-foreground">Görev Maliyetleri</h3> 
+                <div className="bg-card border border-border rounded-lg p-4">
+                    <div className="space-y-3">
+                        {tasks.map(task => (
+                            <div key={task.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                                <div className="flex-1">
+                                    <p className="font-medium text-foreground">{task.title}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {/* Proje Başlığı (Bu kısım finansal formatlama gerektirmiyor) */}
+                                        {projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
+                                    </p>
+                                </div>
+                                {/* 1. Her Görev Maliyeti (task.estimatedCost) */}
+                                <span className="font-semibold text-foreground">
+                                    {/* Orijinal: {(task.estimatedCost || 0).toLocaleString('tr-TR')} ₺ */}
+                                    {formatCurrency(task.estimatedCost || 0)}
+                                </span>
+                            </div>
+                        ))}
+                        <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
+                            {/* Toplam başlığı da t() fonksiyonu ile yerelleştirilebilir */}
+                            <span className="font-bold text-foreground">Toplam Tahmini Maliyet</span>
+                            {/* 2. Toplam Tahmini Maliyet */}
+                            <span className="font-bold text-lg text-foreground">
+                                {/* Orijinal: {tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0).toLocaleString('tr-TR')} ₺ */}
+                                {formatCurrency(
+                                    tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0)
+                                )}
+                            </span>
+                        </div>
                     </div>
-                  ))}
-                  <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
-                    <span className="font-bold text-foreground">Toplam Tahmini Maliyet</span>
-                    <span className="font-bold text-lg text-foreground">
-                      {tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0).toLocaleString('tr-TR')} ₺
-                    </span>
-                  </div>
                 </div>
-              </div>
             </div>
 
             {/* Team Costs */}
+            {/* Not: Bu blok, 'i18n' objesinin Index bileşeni içinde tanımlı olduğunu varsayar. */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Ekip Maliyetleri</h3>
-              <div className="bg-card border border-border rounded-lg p-4">
-                <div className="space-y-3">
-                  {teamMembers.map(member => (
-                    <div key={member.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{member.name}</p>
-                        <p className="text-xs text-muted-foreground">{member.specialty}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-foreground">
-                          {(member.dailyWage || 0).toLocaleString('tr-TR')} ₺/gün
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          ~{((member.dailyWage || 0) * 26).toLocaleString('tr-TR')} ₺/ay
-                        </p>
-                      </div>
+                <h3 className="text-xl font-semibold text-foreground">Ekip Maliyetleri</h3>
+                <div className="bg-card border border-border rounded-lg p-4">
+                    <div className="space-y-3">
+                        {teamMembers.map(member => {
+                            const currentLanguage = i18n.language;
+                            let locale = 'tr-TR';
+                            let currencySymbol = '₺';
+                            let symbolAtEnd = false;
+
+                            if (currentLanguage.startsWith('sv')) {
+                                locale = 'sv-SE';
+                                currencySymbol = 'kr';
+                                symbolAtEnd = true;
+                            } else if (currentLanguage.startsWith('en')) {
+                                locale = 'en-US';
+                                currencySymbol = '$';
+                                symbolAtEnd = false;
+                            }
+
+                            // Formatlama Fonksiyonu (satır içi tekrar)
+                            const formatWage = (wage: number, unit: string) => {
+                                const formattedAmount = wage.toLocaleString(locale, {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                });
+                                
+                                const formattedWage = symbolAtEnd 
+                                    ? `${formattedAmount} ${currencySymbol}` 
+                                    : `${currencySymbol}${formattedAmount}`;
+                                    
+                                return `${formattedWage}/${unit}`;
+                            };
+
+                            return (
+                                <div key={member.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                                    <div className="flex-1">
+                                        <p className="font-medium text-foreground">{member.name}</p>
+                                        <p className="text-xs text-muted-foreground">{member.specialty}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        {/* Günlük Ücret */}
+                                        <p className="font-semibold text-foreground">
+                                            {formatWage(member.dailyWage || 0, 'gün')}
+                                        </p>
+                                        {/* Aylık Tahmini Ücret */}
+                                        <p className="text-xs text-muted-foreground">
+                                            ~{formatWage((member.dailyWage || 0) * 26, 'ay')}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        
+                        {/* Toplam Günlük Maliyet */}
+                        <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
+                            <span className="font-bold text-foreground">Toplam Günlük Ekip Maliyeti</span>
+                            <span className="font-bold text-lg text-foreground">
+                                {/* Toplam Maliyet İçin Satır İçi Tekrar */}
+                                {(() => {
+                                    const totalWage = teamMembers.reduce((sum, m) => sum + (m.dailyWage || 0), 0);
+                                    const currentLanguage = i18n.language;
+                                    let locale = 'tr-TR';
+                                    let currencySymbol = '₺';
+                                    let symbolAtEnd = false;
+
+                                    if (currentLanguage.startsWith('sv')) {
+                                        locale = 'sv-SE';
+                                        currencySymbol = 'kr';
+                                        symbolAtEnd = true;
+                                    } else if (currentLanguage.startsWith('en')) {
+                                        locale = 'en-US';
+                                        currencySymbol = '$';
+                                        symbolAtEnd = false;
+                                    }
+
+                                    const formattedAmount = totalWage.toLocaleString(locale, {
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0,
+                                    });
+                                    
+                                    const formattedTotal = symbolAtEnd 
+                                        ? `${formattedAmount} ${currencySymbol}` 
+                                        : `${currencySymbol}${formattedAmount}`;
+                                        
+                                    return `${formattedTotal}/gün`;
+                                })()}
+                            </span>
+                        </div>
                     </div>
-                  ))}
-                  <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
-                    <span className="font-bold text-foreground">Toplam Günlük Ekip Maliyeti</span>
-                    <span className="font-bold text-lg text-foreground">
-                      {teamMembers.reduce((sum, m) => sum + (m.dailyWage || 0), 0).toLocaleString('tr-TR')} ₺/gün
-                    </span>
-                  </div>
                 </div>
-              </div>
             </div>
           </TabsContent>
 
