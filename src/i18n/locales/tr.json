@@ -22,11 +22,22 @@
   "stats": {
     "totalProjects": "Toplam Projeler",
     "activeTasks": "Aktif Görevler",
+    "completedTasks": "Tamamlanan Görevler",
     "teamMembers": "Ekip Üyeleri",
     "totalBudget": "Toplam Bütçe",
     "totalRevenue": "Toplam Gelir",
     "totalCost": "Toplam Maliyet",
     "netProfit": "Net Kar"
+  },
+  "finance": {
+    "projectFinancials": "Proje Bazlı Finansal Durum",
+    "budgetUsage": "Bütçe Kullanımı",
+    "taskCosts": "Görev Maliyetleri",
+    "totalEstimatedCost": "Toplam Tahmini Maliyet",
+    "teamCosts": "Ekip Maliyetleri",
+    "totalDailyTeamCost": "Toplam Günlük Ekip Maliyeti",
+    "day": "gün",
+    "month": "ay"
   },
   "project": {
     "add": "Proje Ekle",

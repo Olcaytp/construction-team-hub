@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, User, MoreVertical } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,8 @@ export const TaskItem = ({
   priority = "medium",
   onStatusChange,
 }: TaskItemProps) => {
+  const { t } = useTranslation();
+
   const statusColors = {
     pending: "bg-warning text-warning-foreground",
     "in-progress": "bg-info text-info-foreground",
@@ -35,9 +38,9 @@ export const TaskItem = ({
   };
 
   const statusLabels = {
-    pending: "Bekliyor",
-    "in-progress": "Devam Ediyor",
-    completed: "Tamamlandı",
+    pending: t('task.pending'),
+    "in-progress": t('task.inProgress'),
+    completed: t('task.completed'),
   };
 
   const priorityColors = {
@@ -75,13 +78,13 @@ export const TaskItem = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onStatusChange?.("pending")}>
-                Bekliyor
+                {t('task.pending')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onStatusChange?.("in-progress")}>
-                Devam Ediyor
+                {t('task.inProgress')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onStatusChange?.("completed")}>
-                Tamamlandı
+                {t('task.completed')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

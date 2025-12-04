@@ -22,11 +22,22 @@
   "stats": {
     "totalProjects": "Total Projects",
     "activeTasks": "Active Tasks",
+    "completedTasks": "Completed Tasks",
     "teamMembers": "Team Members",
     "totalBudget": "Total Budget",
     "totalRevenue": "Total Revenue",
     "totalCost": "Total Cost",
     "netProfit": "Net Profit"
+  },
+  "finance": {
+    "projectFinancials": "Project Financial Status",
+    "budgetUsage": "Budget Usage",
+    "taskCosts": "Task Costs",
+    "totalEstimatedCost": "Total Estimated Cost",
+    "teamCosts": "Team Costs",
+    "totalDailyTeamCost": "Total Daily Team Cost",
+    "day": "day",
+    "month": "month"
   },
   "project": {
     "add": "Add Project",

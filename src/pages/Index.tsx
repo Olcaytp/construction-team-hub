@@ -214,7 +214,7 @@ const Index = () => {
                 variant="info"
               />
               <StatsCard
-                title={t('common.edit')}
+                title={t('stats.completedTasks')}
                 value={tasks.filter(t => t.status === 'completed').length}
                 icon={ListTodo}
                 variant="success"
@@ -254,18 +254,21 @@ const Index = () => {
             <div className="space-y-3 sm:space-y-4">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.tasks')}</h2>
               <div className="space-y-2 sm:space-y-3">
-                {tasks.slice(0, 3).map(task => (
-                  <TaskItem
-                    key={task.id}
-                    title={task.title}
-                    project={projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
-                    assignee={task.assignedTo}
-                    dueDate={task.dueDate}
-                    status={task.status as any}
-                    priority={task.priority as any}
-                    onStatusChange={(status) => handleStatusChange(task.id, status)}
-                  />
-                ))}
+                {tasks.slice(0, 3).map(task => {
+                  const assigneeName = teamMembers.find(m => m.id === task.assignedTo)?.name || task.assignedTo || t('common.noData');
+                  return (
+                    <TaskItem
+                      key={task.id}
+                      title={task.title}
+                      project={projects.find(p => p.id === task.projectId)?.title || t('common.noData')}
+                      assignee={assigneeName}
+                      dueDate={task.dueDate}
+                      status={task.status as any}
+                      priority={task.priority as any}
+                      onStatusChange={(status) => handleStatusChange(task.id, status)}
+                    />
+                  );
+                })}
               </div>
             </div>
           </TabsContent>
@@ -339,19 +342,21 @@ const Index = () => {
               </Button>
             </div>
             <div className="space-y-2 sm:space-y-3">
-              {tasks.map(task => (
-                <div key={task.id} className="flex gap-2 group">
-                  <div className="flex-1">
-                    <TaskItem 
-                      title={task.title}
-                      project={projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
-                      assignee={task.assignedTo}
-                      dueDate={task.dueDate}
-                      status={task.status as any}
-                      priority={task.priority as any}
-                      onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
-                    />
-                  </div>
+              {tasks.map(task => {
+                const assigneeName = teamMembers.find(m => m.id === task.assignedTo)?.name || task.assignedTo || t('common.noData');
+                return (
+                  <div key={task.id} className="flex gap-2 group">
+                    <div className="flex-1">
+                      <TaskItem 
+                        title={task.title}
+                        project={projects.find(p => p.id === task.projectId)?.title || t('common.noData')}
+                        assignee={assigneeName}
+                        dueDate={task.dueDate}
+                        status={task.status as any}
+                        priority={task.priority as any}
+                        onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
+                      />
+                    </div>
                   <div className="flex gap-2 items-start pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
@@ -370,9 +375,10 @@ const Index = () => {
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </TabsContent>
 
@@ -415,25 +421,25 @@ const Index = () => {
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatsCard
                 title={t('stats.totalBudget')}
-                value={`₺${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString()}`}
+                value={projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString('tr-TR')}
                 icon={DollarSign}
                 variant="default"
               />
               <StatsCard
                 title={t('stats.totalRevenue')}
-                value={`₺${projects.reduce((sum, p) => sum + (p.revenue || 0), 0).toLocaleString()}`}
+                value={projects.reduce((sum, p) => sum + (p.revenue || 0), 0).toLocaleString('tr-TR')}
                 icon={DollarSign}
                 variant="success"
               />
               <StatsCard
                 title={t('stats.totalCost')}
-                value={`₺${projects.reduce((sum, p) => sum + (p.actualCost || 0), 0).toLocaleString()}`}
+                value={projects.reduce((sum, p) => sum + (p.actualCost || 0), 0).toLocaleString('tr-TR')}
                 icon={DollarSign}
                 variant="warning"
               />
               <StatsCard
                 title={t('stats.netProfit')}
-                value={`₺${(projects.reduce((sum, p) => sum + (p.revenue || 0), 0) - projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)).toLocaleString()}`}
+                value={(projects.reduce((sum, p) => sum + (p.revenue || 0), 0) - projects.reduce((sum, p) => sum + (p.actualCost || 0), 0)).toLocaleString('tr-TR')}
                 icon={DollarSign}
                 variant="info"
               />
@@ -441,7 +447,7 @@ const Index = () => {
 
             {/* Project Financial Details */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Proje Bazlı Finansal Durum</h3>
+              <h3 className="text-xl font-semibold text-foreground">{t('finance.projectFinancials')}</h3>
               <div className="grid gap-4">
                 {projects.map(project => {
                   const profit = (project.revenue || 0) - (project.actualCost || 0);
@@ -452,26 +458,26 @@ const Index = () => {
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-semibold text-foreground">{project.title}</h4>
                         <span className={`text-sm font-medium ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
-                          {isProfitable ? '+' : ''}{profit.toLocaleString('tr-TR')} ₺
+                          {isProfitable ? '+' : ''}{profit.toLocaleString('tr-TR')}
                         </span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 mb-3">
                         <div>
-                          <p className="text-xs text-muted-foreground">Bütçe</p>
-                          <p className="font-semibold">{(project.budget || 0).toLocaleString('tr-TR')} ₺</p>
+                          <p className="text-xs text-muted-foreground">{t('stats.totalBudget')}</p>
+                          <p className="font-semibold">{(project.budget || 0).toLocaleString('tr-TR')}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Gelir</p>
-                          <p className="font-semibold text-green-600">{(project.revenue || 0).toLocaleString('tr-TR')} ₺</p>
+                          <p className="text-xs text-muted-foreground">{t('stats.totalRevenue')}</p>
+                          <p className="font-semibold text-green-600">{(project.revenue || 0).toLocaleString('tr-TR')}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Maliyet</p>
-                          <p className="font-semibold text-orange-600">{(project.actualCost || 0).toLocaleString('tr-TR')} ₺</p>
+                          <p className="text-xs text-muted-foreground">{t('stats.totalCost')}</p>
+                          <p className="font-semibold text-orange-600">{(project.actualCost || 0).toLocaleString('tr-TR')}</p>
                         </div>
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Bütçe Kullanımı</span>
+                          <span className="text-muted-foreground">{t('finance.budgetUsage')}</span>
                           <span className="font-medium">
                             {project.budget > 0 ? Math.round(((project.actualCost || 0) / project.budget) * 100) : 0}%
                           </span>
@@ -493,7 +499,7 @@ const Index = () => {
 
             {/* Task Costs */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Görev Maliyetleri</h3>
+              <h3 className="text-xl font-semibold text-foreground">{t('finance.taskCosts')}</h3>
               <div className="bg-card border border-border rounded-lg p-4">
                 <div className="space-y-3">
                   {tasks.map(task => (
@@ -501,18 +507,18 @@ const Index = () => {
                       <div className="flex-1">
                         <p className="font-medium text-foreground">{task.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
+                          {projects.find(p => p.id === task.projectId)?.title || t('common.noData')}
                         </p>
                       </div>
                       <span className="font-semibold text-foreground">
-                        {(task.estimatedCost || 0).toLocaleString('tr-TR')} ₺
+                        {(task.estimatedCost || 0).toLocaleString('tr-TR')}
                       </span>
                     </div>
                   ))}
                   <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
-                    <span className="font-bold text-foreground">Toplam Tahmini Maliyet</span>
+                    <span className="font-bold text-foreground">{t('finance.totalEstimatedCost')}</span>
                     <span className="font-bold text-lg text-foreground">
-                      {tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0).toLocaleString('tr-TR')} ₺
+                      {tasks.reduce((sum, t) => sum + (t.estimatedCost || 0), 0).toLocaleString('tr-TR')}
                     </span>
                   </div>
                 </div>
@@ -521,7 +527,7 @@ const Index = () => {
 
             {/* Team Costs */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Ekip Maliyetleri</h3>
+              <h3 className="text-xl font-semibold text-foreground">{t('finance.teamCosts')}</h3>
               <div className="bg-card border border-border rounded-lg p-4">
                 <div className="space-y-3">
                   {teamMembers.map(member => (
@@ -532,18 +538,18 @@ const Index = () => {
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-foreground">
-                          {(member.dailyWage || 0).toLocaleString('tr-TR')} ₺/gün
+                          {(member.dailyWage || 0).toLocaleString('tr-TR')}/{t('finance.day')}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          ~{((member.dailyWage || 0) * 26).toLocaleString('tr-TR')} ₺/ay
+                          ~{((member.dailyWage || 0) * 26).toLocaleString('tr-TR')}/{t('finance.month')}
                         </p>
                       </div>
                     </div>
                   ))}
                   <div className="flex items-center justify-between pt-2 mt-2 border-t-2 border-border">
-                    <span className="font-bold text-foreground">Toplam Günlük Ekip Maliyeti</span>
+                    <span className="font-bold text-foreground">{t('finance.totalDailyTeamCost')}</span>
                     <span className="font-bold text-lg text-foreground">
-                      {teamMembers.reduce((sum, m) => sum + (m.dailyWage || 0), 0).toLocaleString('tr-TR')} ₺/gün
+                      {teamMembers.reduce((sum, m) => sum + (m.dailyWage || 0), 0).toLocaleString('tr-TR')}/{t('finance.day')}
                     </span>
                   </div>
                 </div>
