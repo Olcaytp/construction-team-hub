@@ -22,11 +22,22 @@
   "stats": {
     "totalProjects": "Totala projekt",
     "activeTasks": "Aktiva uppgifter",
+    "completedTasks": "Slutförda uppgifter",
     "teamMembers": "Teammedlemmar",
     "totalBudget": "Total budget",
     "totalRevenue": "Total intäkt",
     "totalCost": "Total kostnad",
     "netProfit": "Nettovinst"
+  },
+  "finance": {
+    "projectFinancials": "Projektfinansiell status",
+    "budgetUsage": "Budgetanvändning",
+    "taskCosts": "Uppgiftskostnader",
+    "totalEstimatedCost": "Total beräknad kostnad",
+    "teamCosts": "Teamkostnader",
+    "totalDailyTeamCost": "Total daglig teamkostnad",
+    "day": "dag",
+    "month": "månad"
   },
   "project": {
     "add": "Lägg till projekt",

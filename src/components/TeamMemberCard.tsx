@@ -47,23 +47,23 @@ export const TeamMemberCard = ({
               {dailyWage > 0 && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <TrendingUp className="h-4 w-4 flex-shrink-0" />
-                  <span>{t("team.dailyWage")}: ₺{dailyWage.toLocaleString()}</span>
+                  <span>{t("team.dailyWage")}: {dailyWage.toLocaleString()}</span>
                 </div>
               )}
               {(totalReceivable > 0 || totalPaid > 0) && (
                 <div className="grid grid-cols-1 gap-2 mt-3 p-3 bg-muted/50 rounded-lg">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("team.totalReceivable")}:</span>
-                    <span className="font-medium">₺{totalReceivable.toLocaleString()}</span>
+                    <span className="font-medium">{totalReceivable.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("team.totalPaid")}:</span>
-                    <span className="font-medium text-success">₺{totalPaid.toLocaleString()}</span>
+                    <span className="font-medium text-success">{totalPaid.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm pt-2 border-t border-border">
                     <span className="font-medium text-muted-foreground">{t("team.balance")}:</span>
                     <span className={`font-bold ${balance > 0 ? 'text-warning' : 'text-success'}`}>
-                      ₺{balance.toLocaleString()}
+                      {balance.toLocaleString()}
                     </span>
                   </div>
                 </div>
