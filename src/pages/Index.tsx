@@ -258,7 +258,7 @@ const Index = () => {
                 variant="info"
               />
               <StatsCard
-                title={t('common.edit')}
+                title={t('stats.completedTasks')}
                 value={tasks.filter(t => t.status === 'completed').length}
                 icon={ListTodo}
                 variant="success"
@@ -298,18 +298,21 @@ const Index = () => {
             <div className="space-y-3 sm:space-y-4">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.tasks')}</h2>
               <div className="space-y-2 sm:space-y-3">
-                {tasks.slice(0, 3).map(task => (
-                  <TaskItem
-                    key={task.id}
-                    title={task.title}
-                    project={projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
-                    assignee={task.assignedTo}
-                    dueDate={task.dueDate}
-                    status={task.status as any}
-                    priority={task.priority as any}
-                    onStatusChange={(status) => handleStatusChange(task.id, status)}
-                  />
-                ))}
+                {tasks.slice(0, 3).map(task => {
+                  const assigneeName = teamMembers.find(m => m.id === task.assignedTo)?.name || task.assignedTo || t('common.noData');
+                  return (
+                    <TaskItem
+                      key={task.id}
+                      title={task.title}
+                      project={projects.find(p => p.id === task.projectId)?.title || t('common.noData')}
+                      assignee={assigneeName}
+                      dueDate={task.dueDate}
+                      status={task.status as any}
+                      priority={task.priority as any}
+                      onStatusChange={(status) => handleStatusChange(task.id, status)}
+                    />
+                  );
+                })}
               </div>
             </div>
           </TabsContent>
@@ -383,19 +386,21 @@ const Index = () => {
               </Button>
             </div>
             <div className="space-y-2 sm:space-y-3">
-              {tasks.map(task => (
-                <div key={task.id} className="flex gap-2 group">
-                  <div className="flex-1">
-                    <TaskItem 
-                      title={task.title}
-                      project={projects.find(p => p.id === task.projectId)?.title || "Proje Yok"}
-                      assignee={task.assignedTo}
-                      dueDate={task.dueDate}
-                      status={task.status as any}
-                      priority={task.priority as any}
-                      onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
-                    />
-                  </div>
+              {tasks.map(task => {
+                const assigneeName = teamMembers.find(m => m.id === task.assignedTo)?.name || task.assignedTo || t('common.noData');
+                return (
+                  <div key={task.id} className="flex gap-2 group">
+                    <div className="flex-1">
+                      <TaskItem 
+                        title={task.title}
+                        project={projects.find(p => p.id === task.projectId)?.title || t('common.noData')}
+                        assignee={assigneeName}
+                        dueDate={task.dueDate}
+                        status={task.status as any}
+                        priority={task.priority as any}
+                        onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
+                      />
+                    </div>
                   <div className="flex gap-2 items-start pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
@@ -414,9 +419,10 @@ const Index = () => {
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </TabsContent>
 
