@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          total_paid: number | null
+          total_receivable: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          total_paid?: number | null
+          total_receivable?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          total_paid?: number | null
+          total_receivable?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       materials: {
         Row: {
           actual_cost: number | null
@@ -76,6 +115,7 @@ export type Database = {
           assigned_team: string[] | null
           budget: number | null
           created_at: string | null
+          customer_id: string | null
           description: string | null
           end_date: string
           id: string
@@ -93,6 +133,7 @@ export type Database = {
           assigned_team?: string[] | null
           budget?: number | null
           created_at?: string | null
+          customer_id?: string | null
           description?: string | null
           end_date: string
           id?: string
@@ -110,6 +151,7 @@ export type Database = {
           assigned_team?: string[] | null
           budget?: number | null
           created_at?: string | null
+          customer_id?: string | null
           description?: string | null
           end_date?: string
           id?: string
@@ -122,7 +164,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {

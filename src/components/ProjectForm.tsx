@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X } from "lucide-react";
@@ -36,7 +37,8 @@ const formSchema = z.object({
   description: z.string(),
   startDate: z.string().min(1),
   endDate: z.string().min(1),
-  assignedTeam: z.string(),
+  assignedTeam: z.array(z.string()),
+  customerId: z.string().optional(),
   status: z.enum(["planning", "active", "completed"]),
   progress: z.coerce.number().min(0).max(100),
   budget: z.coerce.number().min(0),
@@ -47,12 +49,24 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+interface TeamMember {
+  id: string;
+  name: string;
+}
+
+interface Customer {
+  id: string;
+  name: string;
+}
+
 interface ProjectFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: FormData) => void;
   defaultValues?: FormData;
   title: string;
+  teamMembers?: TeamMember[];
+  customers?: Customer[];
 }
 
 export const ProjectForm = ({
@@ -61,6 +75,8 @@ export const ProjectForm = ({
   onSubmit,
   defaultValues,
   title,
+  teamMembers = [],
+  customers = [],
 }: ProjectFormProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -74,7 +90,8 @@ export const ProjectForm = ({
       description: "",
       startDate: "",
       endDate: "",
-      assignedTeam: "",
+      assignedTeam: [],
+      customerId: "",
       status: "planning",
       progress: 0,
       budget: 0,
@@ -94,7 +111,8 @@ export const ProjectForm = ({
         description: "",
         startDate: "",
         endDate: "",
-        assignedTeam: "",
+        assignedTeam: [],
+        customerId: "",
         status: "planning",
         progress: 0,
         budget: 0,
@@ -158,6 +176,17 @@ export const ProjectForm = ({
     form.reset();
     setPhotoUrls([]);
     onOpenChange(false);
+  };
+
+  const selectedTeam = form.watch("assignedTeam") || [];
+
+  const toggleTeamMember = (memberId: string) => {
+    const current = form.getValues("assignedTeam") || [];
+    if (current.includes(memberId)) {
+      form.setValue("assignedTeam", current.filter(id => id !== memberId));
+    } else {
+      form.setValue("assignedTeam", [...current, memberId]);
+    }
   };
 
   return (
@@ -249,15 +278,61 @@ export const ProjectForm = ({
               />
             </div>
 
+            {/* Customer Selection */}
+            <FormField
+              control={form.control}
+              name="customerId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("project.customer")}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("project.selectCustomer")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">{t("project.noCustomer")}</SelectItem>
+                      {customers.map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Team Member Selection */}
             <FormField
               control={form.control}
               name="assignedTeam"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>{t("project.assignedTeam")}</FormLabel>
-                  <FormControl>
-                    <Input placeholder={t("project.assignedTeamPlaceholder")} {...field} />
-                  </FormControl>
+                  <div className="border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                    {teamMembers.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">{t("common.noData")}</p>
+                    ) : (
+                      teamMembers.map((member) => (
+                        <div key={member.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`team-${member.id}`}
+                            checked={selectedTeam.includes(member.id)}
+                            onCheckedChange={() => toggleTeamMember(member.id)}
+                          />
+                          <label
+                            htmlFor={`team-${member.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {member.name}
+                          </label>
+                        </div>
+                      ))
+                    )}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
