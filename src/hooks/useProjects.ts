@@ -31,6 +31,8 @@ export const useProjects = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
+      // 🚨 Supabase'den gelen ham veriyi görmek için buraya ekleyin
+      console.log("Supabase'den Gelen Ham Veri:", data);
 
       return (data || []).map((p) => ({
         id: p.id,
@@ -126,6 +128,8 @@ export const useProjects = () => {
       toast({ variant: "destructive", title: "Hata", description: error.message });
     },
   });
+  // 💡 Dönüştürülmüş (camelCase'e çevrilmiş) proje listesini görmek için buraya ekleyin
+      console.log("Dönüştürülmüş Projeler (formattedProjects):", projects);
 
   return {
     projects,
