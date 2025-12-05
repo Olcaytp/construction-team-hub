@@ -10,11 +10,14 @@ import { TeamMemberForm } from "@/components/TeamMemberForm";
 import { ProjectForm } from "@/components/ProjectForm";
 import { TaskForm } from "@/components/TaskForm";
 import { MaterialsSection } from "@/components/MaterialsSection";
-import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package } from "lucide-react";
+import { CustomerCard } from "@/components/CustomerCard";
+import { CustomerForm } from "@/components/CustomerForm";
+import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useCustomers } from "@/hooks/useCustomers";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
 const Index = () => {
@@ -67,14 +70,17 @@ const Index = () => {
   const { projects, isLoading: projectsLoading, addProject, updateProject, deleteProject } = useProjects();
   const { tasks, isLoading: tasksLoading, addTask, updateTask, deleteTask } = useTasks();
   const { teamMembers, isLoading: membersLoading, addTeamMember, updateTeamMember, deleteTeamMember } = useTeamMembers();
+  const { customers, isLoading: customersLoading, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
   
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [projectFormOpen, setProjectFormOpen] = useState(false);
   const [teamFormOpen, setTeamFormOpen] = useState(false);
+  const [customerFormOpen, setCustomerFormOpen] = useState(false);
   
   const [editingTask, setEditingTask] = useState<any>(null);
   const [editingProject, setEditingProject] = useState<any>(null);
   const [editingTeamMember, setEditingTeamMember] = useState<any>(null);
+  const [editingCustomer, setEditingCustomer] = useState<any>(null);
 
   const handleStatusChange = (taskId: string, newStatus: string) => {
     const task = tasks.find(t => t.id === taskId);
@@ -99,6 +105,22 @@ const Index = () => {
     deleteTeamMember(id);
   };
 
+  const handleAddCustomer = (data: any) => {
+    addCustomer(data);
+    setCustomerFormOpen(false);
+  };
+
+  const handleEditCustomer = (data: any) => {
+    if (!editingCustomer) return;
+    updateCustomer({ id: editingCustomer.id, ...data });
+    setEditingCustomer(null);
+    setCustomerFormOpen(false);
+  };
+
+  const handleDeleteCustomer = (id: string) => {
+    deleteCustomer(id);
+  };
+
   const handleAddProject = (data: any) => {
     const projectData = {
       title: data.title,
@@ -107,7 +129,8 @@ const Index = () => {
       progress: data.progress,
       startDate: data.startDate,
       endDate: data.endDate,
-      assignedTeam: data.assignedTeam ? data.assignedTeam.split(',').map((t: string) => t.trim()) : [],
+      assignedTeam: data.assignedTeam || [],
+      customerId: data.customerId || null,
       budget: data.budget,
       actualCost: data.actualCost,
       revenue: data.revenue,
@@ -127,7 +150,8 @@ const Index = () => {
       progress: data.progress,
       startDate: data.startDate,
       endDate: data.endDate,
-      assignedTeam: data.assignedTeam ? data.assignedTeam.split(',').map((t: string) => t.trim()) : [],
+      assignedTeam: data.assignedTeam || [],
+      customerId: data.customerId || null,
       budget: data.budget,
       actualCost: data.actualCost,
       revenue: data.revenue,
@@ -179,7 +203,7 @@ const Index = () => {
     deleteTask(id);
   };
 
-  if (projectsLoading || tasksLoading || membersLoading) {
+  if (projectsLoading || tasksLoading || membersLoading || customersLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -240,6 +264,10 @@ const Index = () => {
               <Package className="h-4 w-4" />
               <span className="hidden sm:inline">{t('app.materials')}</span>
             </TabsTrigger>
+            <TabsTrigger value="customers" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
+              <UserCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('app.customers')}</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4 sm:space-y-6">
@@ -275,22 +303,25 @@ const Index = () => {
             <div className="space-y-3 sm:space-y-4">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.projects')}</h2>
               <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {projects.filter(p => p.status === 'active').slice(0, 3).map(project => (
-                  <ProjectCard
-                    key={project.id}
-                    title={project.title}
-                    location={project.description}
-                    startDate={project.startDate}
-                    team={project.assignedTeam.join(', ')}
-                    progress={project.progress}
-                    status={project.status as any}
-                    photos={project.photos}
-                    onClick={() => {
-                      setEditingProject(project);
-                      setProjectFormOpen(true);
-                    }}
-                  />
-                ))}
+                {projects.filter(p => p.status === 'active').slice(0, 3).map(project => {
+                  const teamNames = project.assignedTeam.map(id => teamMembers.find(m => m.id === id)?.name || id).join(', ');
+                  return (
+                    <ProjectCard
+                      key={project.id}
+                      title={project.title}
+                      location={project.description}
+                      startDate={project.startDate}
+                      team={teamNames}
+                      progress={project.progress}
+                      status={project.status as any}
+                      photos={project.photos}
+                      onClick={() => {
+                        setEditingProject(project);
+                        setProjectFormOpen(true);
+                      }}
+                    />
+                  );
+                })}
               </div>
             </div>
 
@@ -329,48 +360,51 @@ const Index = () => {
               </Button>
             </div>
             <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map(project => (
-                <div key={project.id} className="relative group">
-                  <ProjectCard
-                    title={project.title}
-                    location={project.description}
-                    startDate={project.startDate}
-                    team={project.assignedTeam.join(', ')}
-                    progress={project.progress}
-                    status={project.status as any}
-                    photos={project.photos}
-                    onClick={() => {
-                      setEditingProject(project);
-                      setProjectFormOpen(true);
-                    }}
-                  />
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="h-8 w-8"
-                      onClick={(e) => {
-                        e.stopPropagation();
+              {projects.map(project => {
+                const teamNames = project.assignedTeam.map(id => teamMembers.find(m => m.id === id)?.name || id).join(', ');
+                return (
+                  <div key={project.id} className="relative group">
+                    <ProjectCard
+                      title={project.title}
+                      location={project.description}
+                      startDate={project.startDate}
+                      team={teamNames}
+                      progress={project.progress}
+                      status={project.status as any}
+                      photos={project.photos}
+                      onClick={() => {
                         setEditingProject(project);
                         setProjectFormOpen(true);
                       }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-8 w-8"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteProject(project.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    />
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingProject(project);
+                          setProjectFormOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteProject(project.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </TabsContent>
 
@@ -694,6 +728,42 @@ const Index = () => {
           <TabsContent value="materials" className="space-y-4 sm:space-y-6">
             <MaterialsSection />
           </TabsContent>
+
+          <TabsContent value="customers" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.customers')}</h2>
+              <Button onClick={() => {
+                setEditingCustomer(null);
+                setCustomerFormOpen(true);
+              }} className="gap-2 w-full sm:w-auto">
+                <Plus className="h-4 w-4" />
+                {t('customer.add')}
+              </Button>
+            </div>
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {customers.map(customer => {
+                const projectCount = projects.filter(p => p.customerId === customer.id).length;
+                return (
+                  <CustomerCard
+                    key={customer.id}
+                    id={customer.id}
+                    name={customer.name}
+                    phone={customer.phone}
+                    address={customer.address}
+                    notes={customer.notes}
+                    totalReceivable={customer.totalReceivable}
+                    totalPaid={customer.totalPaid}
+                    projectCount={projectCount}
+                    onEdit={() => {
+                      setEditingCustomer(customer);
+                      setCustomerFormOpen(true);
+                    }}
+                    onDelete={() => handleDeleteCustomer(customer.id)}
+                  />
+                );
+              })}
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -724,18 +794,39 @@ const Index = () => {
         }}
         onSubmit={editingProject ? handleEditProject : handleAddProject}
         title={editingProject ? t('project.edit') : t('project.add')}
+        teamMembers={teamMembers}
+        customers={customers}
         defaultValues={editingProject ? {
           title: editingProject.title,
           description: editingProject.description,
           startDate: editingProject.startDate,
           endDate: editingProject.endDate,
-          assignedTeam: editingProject.assignedTeam.join(', '),
+          assignedTeam: editingProject.assignedTeam,
+          customerId: editingProject.customerId || "",
           progress: editingProject.progress,
           status: editingProject.status,
           budget: editingProject.budget,
           actualCost: editingProject.actualCost,
           revenue: editingProject.revenue,
           photos: editingProject.photos || [],
+        } : undefined}
+      />
+
+      <CustomerForm
+        open={customerFormOpen}
+        onOpenChange={(open) => {
+          setCustomerFormOpen(open);
+          if (!open) setEditingCustomer(null);
+        }}
+        onSubmit={editingCustomer ? handleEditCustomer : handleAddCustomer}
+        title={editingCustomer ? t('customer.edit') : t('customer.add')}
+        defaultValues={editingCustomer ? {
+          name: editingCustomer.name,
+          phone: editingCustomer.phone,
+          address: editingCustomer.address,
+          notes: editingCustomer.notes,
+          totalReceivable: editingCustomer.totalReceivable || 0,
+          totalPaid: editingCustomer.totalPaid || 0,
         } : undefined}
       />
 

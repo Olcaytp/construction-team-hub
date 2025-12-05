@@ -11,6 +11,7 @@ export interface Project {
   startDate: string;
   endDate: string;
   assignedTeam: string[];
+  customerId: string | null;
   budget: number;
   actualCost: number;
   revenue: number;
@@ -40,6 +41,7 @@ export const useProjects = () => {
         startDate: p.start_date,
         endDate: p.end_date,
         assignedTeam: p.assigned_team || [],
+        customerId: p.customer_id || null,
         budget: Number(p.budget) || 0,
         actualCost: Number(p.actual_cost) || 0,
         revenue: Number(p.revenue) || 0,
@@ -62,6 +64,7 @@ export const useProjects = () => {
         start_date: project.startDate,
         end_date: project.endDate,
         assigned_team: project.assignedTeam,
+        customer_id: project.customerId || null,
         budget: project.budget,
         actual_cost: project.actualCost,
         revenue: project.revenue,
@@ -91,6 +94,7 @@ export const useProjects = () => {
           start_date: updates.startDate,
           end_date: updates.endDate,
           assigned_team: updates.assignedTeam,
+          customer_id: updates.customerId || null,
           budget: updates.budget,
           actual_cost: updates.actualCost,
           revenue: updates.revenue,
