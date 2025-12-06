@@ -285,14 +285,14 @@ export const ProjectForm = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("project.customer")}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                  <Select onValueChange={(val) => field.onChange(val === "none" ? "" : val)} value={field.value || "none"}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={t("project.selectCustomer")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">{t("project.noCustomer")}</SelectItem>
+                      <SelectItem value="none">{t("project.noCustomer")}</SelectItem>
                       {customers.map((customer) => (
                         <SelectItem key={customer.id} value={customer.id}>
                           {customer.name}
