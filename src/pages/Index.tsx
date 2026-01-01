@@ -13,7 +13,8 @@ import { MaterialsSection } from "@/components/MaterialsSection";
 import { CustomerCard } from "@/components/CustomerCard";
 import { CustomerForm } from "@/components/CustomerForm";
 import { UpgradeAlert } from "@/components/UpgradeAlert";
-import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle, Crown } from "lucide-react";
+import { ReportsSection } from "@/components/ReportsSection";
+import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle, Crown, BarChart3 } from "lucide-react";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useProjects } from "@/hooks/useProjects";
@@ -276,6 +277,10 @@ const Index = () => {
             <TabsTrigger value="customers" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <UserCircle className="h-4 w-4" />
               <span className="hidden sm:inline">{t('app.customers')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('app.reports')}</span>
             </TabsTrigger>
             <TabsTrigger value="subscription" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
               <Crown className="h-4 w-4" />
@@ -800,9 +805,13 @@ const Index = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="reports" className="space-y-4 sm:space-y-6">
+            <ReportsSection />
+          </TabsContent>
+
           <TabsContent value="subscription" className="space-y-4 sm:space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.subscription')}</h2>
-            <div className="max-w-md">
+            <div className="max-w-3xl">
               <SubscriptionCard />
             </div>
           </TabsContent>
