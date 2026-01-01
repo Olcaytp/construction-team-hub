@@ -12,6 +12,7 @@ import { TaskForm } from "@/components/TaskForm";
 import { MaterialsSection } from "@/components/MaterialsSection";
 import { CustomerCard } from "@/components/CustomerCard";
 import { CustomerForm } from "@/components/CustomerForm";
+import { UpgradeAlert } from "@/components/UpgradeAlert";
 import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle, Crown } from "lucide-react";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +20,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useCustomers } from "@/hooks/useCustomers";
+import { useSubscription, PLAN_LIMITS } from "@/hooks/useSubscription";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
 const Index = () => {
@@ -68,10 +70,16 @@ const Index = () => {
     };
 
   const { signOut } = useAuth();
+  const { isPremium } = useSubscription();
   const { projects, isLoading: projectsLoading, addProject, updateProject, deleteProject } = useProjects();
   const { tasks, isLoading: tasksLoading, addTask, updateTask, deleteTask } = useTasks();
   const { teamMembers, isLoading: membersLoading, addTeamMember, updateTeamMember, deleteTeamMember } = useTeamMembers();
   const { customers, isLoading: customersLoading, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
+
+  // Plan limitleri
+  const currentLimits = isPremium ? PLAN_LIMITS.premium : PLAN_LIMITS.standard;
+  const canAddProject = projects.length < currentLimits.maxProjects;
+  const canAddTeamMember = teamMembers.length < currentLimits.maxTeamMembers;
   
   const [taskFormOpen, setTaskFormOpen] = useState(false);
   const [projectFormOpen, setProjectFormOpen] = useState(false);
@@ -354,12 +362,23 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="projects" className="space-y-4 sm:space-y-6">
+            {!canAddProject && (
+              <UpgradeAlert 
+                type="projects" 
+                current={projects.length} 
+                limit={PLAN_LIMITS.standard.maxProjects} 
+              />
+            )}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.projects')}</h2>
-              <Button onClick={() => {
-                setEditingProject(null);
-                setProjectFormOpen(true);
-              }} className="gap-2 w-full sm:w-auto">
+              <Button 
+                onClick={() => {
+                  setEditingProject(null);
+                  setProjectFormOpen(true);
+                }} 
+                className="gap-2 w-full sm:w-auto"
+                disabled={!canAddProject}
+              >
                 <Plus className="h-4 w-4" />
                 {t('project.add')}
               </Button>
@@ -466,12 +485,23 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="teams" className="space-y-4 sm:space-y-6">
+            {!canAddTeamMember && (
+              <UpgradeAlert 
+                type="teamMembers" 
+                current={teamMembers.length} 
+                limit={PLAN_LIMITS.standard.maxTeamMembers} 
+              />
+            )}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('app.team')}</h2>
-              <Button onClick={() => {
-                setEditingTeamMember(null);
-                setTeamFormOpen(true);
-              }} className="gap-2 w-full sm:w-auto">
+              <Button 
+                onClick={() => {
+                  setEditingTeamMember(null);
+                  setTeamFormOpen(true);
+                }} 
+                className="gap-2 w-full sm:w-auto"
+                disabled={!canAddTeamMember}
+              >
                 <Plus className="h-4 w-4" />
                 {t('team.add')}
               </Button>
