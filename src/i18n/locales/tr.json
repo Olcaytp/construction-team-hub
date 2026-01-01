@@ -8,6 +8,7 @@
     "economy": "Ekonomi",
     "materials": "Malzemeler",
     "customers": "Müşteriler",
+    "subscription": "Abonelik",
     "logout": "Çıkış Yap"
   },
   "auth": {
