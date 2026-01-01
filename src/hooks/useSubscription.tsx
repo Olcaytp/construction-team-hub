@@ -3,6 +3,18 @@ import { useAuth } from "./useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 // Stripe ürün ve fiyat bilgileri
+// Plan limitleri
+export const PLAN_LIMITS = {
+  standard: {
+    maxProjects: 3,
+    maxTeamMembers: 2,
+  },
+  premium: {
+    maxProjects: Infinity,
+    maxTeamMembers: Infinity,
+  },
+} as const;
+
 export const SUBSCRIPTION_TIERS = {
   standard: {
     product_id: null,
