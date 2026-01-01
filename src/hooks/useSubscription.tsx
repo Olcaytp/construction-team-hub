@@ -4,6 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Stripe ürün ve fiyat bilgileri
 export const SUBSCRIPTION_TIERS = {
+  standard: {
+    product_id: null,
+    price_id: null,
+    name: "Standard",
+    price: 0,
+    currency: "TRY",
+    features: [
+      "3 proje",
+      "2 ekip üyesi",
+      "Temel raporlama",
+      "E-posta desteği"
+    ]
+  },
   premium: {
     product_id: "prod_TiJnuqsH5SgpBF",
     price_id: "price_1Skt9sBqz5IswCfZjnSobzU9",
