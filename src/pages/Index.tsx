@@ -79,8 +79,9 @@ const Index = () => {
   const { teamMembers, isLoading: membersLoading, addTeamMember, updateTeamMember, deleteTeamMember } = useTeamMembers();
   const { customers, isLoading: customersLoading, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
 
-  // Plan limitleri
-  const currentLimits = isPremium ? PLAN_LIMITS.premium : PLAN_LIMITS.standard;
+  // Plan limitleri - Admin'ler premium özelliklerine sahip
+  const hasPremiumAccess = isPremium || isAdmin;
+  const currentLimits = hasPremiumAccess ? PLAN_LIMITS.premium : PLAN_LIMITS.standard;
   const canAddProject = projects.length < currentLimits.maxProjects;
   const canAddTeamMember = teamMembers.length < currentLimits.maxTeamMembers;
   
