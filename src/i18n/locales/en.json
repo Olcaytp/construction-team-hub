@@ -10,6 +10,7 @@
     "customers": "Customers",
     "reports": "Reports",
     "subscription": "Subscription",
+    "admin": "Admin",
     "logout": "Logout"
   },
   "auth": {
@@ -170,5 +171,26 @@
     "edit": "Edit",
     "delete": "Delete",
     "noData": "No data available"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "totalUsers": "Total Users",
+    "premiumUsers": "Premium Users",
+    "totalProjects": "Total Projects",
+    "totalTasks": "Total Tasks",
+    "planPricing": "Plan Pricing",
+    "planPricingDesc": "Current plan prices and features",
+    "freePlan": "Free",
+    "paidPlan": "Paid",
+    "userManagement": "User Management",
+    "userManagementDesc": "View and manage registered users",
+    "email": "Email",
+    "name": "Name",
+    "role": "Role",
+    "subscription": "Subscription",
+    "registeredAt": "Registered At",
+    "actions": "Actions",
+    "roleUpdated": "Role updated",
+    "roleUpdateError": "Error updating role"
   }
 }
