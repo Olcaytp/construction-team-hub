@@ -10,6 +10,7 @@
     "customers": "Kunder",
     "reports": "Rapporter",
     "subscription": "Prenumeration",
+    "admin": "Admin",
     "logout": "Logga ut"
   },
   "auth": {
@@ -170,5 +171,26 @@
     "edit": "Redigera",
     "delete": "Ta bort",
     "noData": "Ingen data tillgänglig"
+  },
+  "admin": {
+    "title": "Adminpanel",
+    "totalUsers": "Totala användare",
+    "premiumUsers": "Premiumanvändare",
+    "totalProjects": "Totala projekt",
+    "totalTasks": "Totala uppgifter",
+    "planPricing": "Planprissättning",
+    "planPricingDesc": "Nuvarande planpriser och funktioner",
+    "freePlan": "Gratis",
+    "paidPlan": "Betald",
+    "userManagement": "Användarhantering",
+    "userManagementDesc": "Visa och hantera registrerade användare",
+    "email": "E-post",
+    "name": "Namn",
+    "role": "Roll",
+    "subscription": "Prenumeration",
+    "registeredAt": "Registrerad",
+    "actions": "Åtgärder",
+    "roleUpdated": "Roll uppdaterad",
+    "roleUpdateError": "Fel vid uppdatering av roll"
   }
 }

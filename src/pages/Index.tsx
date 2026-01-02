@@ -14,7 +14,8 @@ import { CustomerCard } from "@/components/CustomerCard";
 import { CustomerForm } from "@/components/CustomerForm";
 import { UpgradeAlert } from "@/components/UpgradeAlert";
 import { ReportsSection } from "@/components/ReportsSection";
-import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle, Crown, BarChart3 } from "lucide-react";
+import { AdminPanel } from "@/components/AdminPanel";
+import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle, Crown, BarChart3, Shield } from "lucide-react";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useProjects } from "@/hooks/useProjects";
@@ -22,8 +23,8 @@ import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useCustomers } from "@/hooks/useCustomers";
 import { useSubscription, PLAN_LIMITS } from "@/hooks/useSubscription";
+import { useAdmin } from "@/hooks/useAdmin";
 import { LanguageSelector } from "@/components/LanguageSelector";
-
 const Index = () => {
   const { t, i18n } = useTranslation();
 
@@ -72,6 +73,7 @@ const Index = () => {
 
   const { signOut } = useAuth();
   const { isPremium } = useSubscription();
+  const { isAdmin } = useAdmin();
   const { projects, isLoading: projectsLoading, addProject, updateProject, deleteProject } = useProjects();
   const { tasks, isLoading: tasksLoading, addTask, updateTask, deleteTask } = useTasks();
   const { teamMembers, isLoading: membersLoading, addTeamMember, updateTeamMember, deleteTeamMember } = useTeamMembers();
@@ -286,6 +288,12 @@ const Index = () => {
               <Crown className="h-4 w-4" />
               <span className="hidden sm:inline">{t('app.subscription')}</span>
             </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="admin" className="gap-2 text-xs sm:text-sm whitespace-nowrap">
+                <Shield className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('app.admin')}</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4 sm:space-y-6">
@@ -815,6 +823,12 @@ const Index = () => {
               <SubscriptionCard />
             </div>
           </TabsContent>
+
+          {isAdmin && (
+            <TabsContent value="admin" className="space-y-4 sm:space-y-6">
+              <AdminPanel />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 

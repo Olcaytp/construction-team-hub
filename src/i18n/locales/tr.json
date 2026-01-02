@@ -10,6 +10,7 @@
     "customers": "Müşteriler",
     "reports": "Raporlar",
     "subscription": "Abonelik",
+    "admin": "Yönetici",
     "logout": "Çıkış Yap"
   },
   "auth": {
@@ -170,5 +171,26 @@
     "edit": "Düzenle",
     "delete": "Sil",
     "noData": "Veri bulunamadı"
+  },
+  "admin": {
+    "title": "Yönetici Paneli",
+    "totalUsers": "Toplam Kullanıcı",
+    "premiumUsers": "Premium Kullanıcılar",
+    "totalProjects": "Toplam Proje",
+    "totalTasks": "Toplam Görev",
+    "planPricing": "Plan Fiyatlandırması",
+    "planPricingDesc": "Mevcut plan fiyatları ve özellikleri",
+    "freePlan": "Ücretsiz",
+    "paidPlan": "Ücretli",
+    "userManagement": "Kullanıcı Yönetimi",
+    "userManagementDesc": "Kayıtlı kullanıcıları görüntüle ve yönet",
+    "email": "E-posta",
+    "name": "İsim",
+    "role": "Rol",
+    "subscription": "Abonelik",
+    "registeredAt": "Kayıt Tarihi",
+    "actions": "İşlemler",
+    "roleUpdated": "Rol güncellendi",
+    "roleUpdateError": "Rol güncellenirken hata oluştu"
   }
 }
