@@ -3,6 +3,7 @@ import { useSubscription, SUBSCRIPTION_TIERS } from "@/hooks/useSubscription";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useAdmin } from "@/hooks/useAdmin";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +20,13 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3
 export const ReportsSection = () => {
   const { t } = useTranslation();
   const { isPremium, createCheckout } = useSubscription();
+  const { isAdmin } = useAdmin();
   const { projects } = useProjects();
   const { tasks } = useTasks();
   const { teamMembers } = useTeamMembers();
+
+  // Admin'ler de premium özelliklere erişebilir
+  const hasPremiumAccess = isPremium || isAdmin;
 
   const handleUpgrade = async () => {
     const url = await createCheckout(SUBSCRIPTION_TIERS.premium.price_id!);
@@ -107,13 +112,13 @@ export const ReportsSection = () => {
         <div>
           <h2 className="text-2xl font-bold">Raporlar</h2>
           <p className="text-muted-foreground">
-            {isPremium ? "Gelişmiş raporlama ve analizler" : "Temel raporlar"}
+            {hasPremiumAccess ? "Gelişmiş raporlama ve analizler" : "Temel raporlar"}
           </p>
         </div>
-        {isPremium && (
+        {hasPremiumAccess && (
           <Badge className="bg-primary gap-1">
             <Crown className="h-3 w-3" />
-            Premium
+            {isAdmin ? "Admin" : "Premium"}
           </Badge>
         )}
       </div>
@@ -213,13 +218,13 @@ export const ReportsSection = () => {
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Crown className="h-5 w-5 text-amber-500" />
           Gelişmiş Raporlar
-          {!isPremium && (
+          {!hasPremiumAccess && (
             <Badge variant="outline" className="ml-2">Premium</Badge>
           )}
         </h3>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {isPremium ? (
+          {hasPremiumAccess ? (
             <>
               {/* Project Financial Analysis */}
               <Card>
