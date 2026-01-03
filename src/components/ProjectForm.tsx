@@ -433,9 +433,6 @@ export const ProjectForm = ({
                       </Button>
                     </div>
                   ))}
-                  {photoUrls.length === 0 && (
-                    <span className="text-sm text-muted-foreground self-center">{t("common.noData")}</span>
-                  )}
                 </div>
               </div>
             </div>
