@@ -12,8 +12,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line, Legend 
 } from "recharts";
-import { Crown, Lock, TrendingUp, Users, FolderKanban, ListTodo, DollarSign } from "lucide-react";
+import { Crown, Lock, TrendingUp, Users, FolderKanban, ListTodo, DollarSign, Download } from "lucide-react";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
 
@@ -35,6 +37,118 @@ export const ReportsSection = () => {
     } else {
       toast.error("Ödeme sayfası açılamadı.");
     }
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Title
+    doc.setFontSize(20);
+    doc.text("İnşaat Yönetimi Raporu", pageWidth / 2, 20, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.text(`Oluşturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, pageWidth / 2, 28, { align: "center" });
+    
+    let yPos = 40;
+
+    // Overview Stats
+    doc.setFontSize(14);
+    doc.text("Genel Özet", 14, yPos);
+    yPos += 8;
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Metrik', 'Değer']],
+      body: [
+        ['Toplam Proje', totalProjects.toString()],
+        ['Aktif Proje', activeProjects.toString()],
+        ['Tamamlanan Proje', completedProjects.toString()],
+        ['Toplam Görev', totalTasks.toString()],
+        ['Tamamlanan Görev', completedTasks.toString()],
+        ['Görev Tamamlama Oranı', `${taskCompletionRate}%`],
+        ['Ekip Üyesi Sayısı', teamMembers.length.toString()],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+
+    yPos = (doc as any).lastAutoTable.finalY + 15;
+
+    // Financial Summary
+    doc.setFontSize(14);
+    doc.text("Finansal Özet", 14, yPos);
+    yPos += 8;
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Kategori', 'Tutar (₺)']],
+      body: [
+        ['Toplam Bütçe', totalBudget.toLocaleString('tr-TR')],
+        ['Toplam Gelir', totalRevenue.toLocaleString('tr-TR')],
+        ['Toplam Maliyet', totalCost.toLocaleString('tr-TR')],
+        ['Net Kâr', netProfit.toLocaleString('tr-TR')],
+        ['Kâr Marjı', `${totalRevenue > 0 ? Math.round((netProfit / totalRevenue) * 100) : 0}%`],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [34, 197, 94] },
+    });
+
+    yPos = (doc as any).lastAutoTable.finalY + 15;
+
+    // Project Details
+    if (projects.length > 0) {
+      doc.setFontSize(14);
+      doc.text("Proje Detayları", 14, yPos);
+      yPos += 8;
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Proje', 'Durum', 'İlerleme', 'Bütçe (₺)', 'Maliyet (₺)', 'Gelir (₺)']],
+        body: projects.map(p => [
+          p.title.length > 20 ? p.title.substring(0, 20) + '...' : p.title,
+          p.status === 'active' ? 'Aktif' : p.status === 'completed' ? 'Tamamlandı' : 'Beklemede',
+          `${p.progress}%`,
+          (p.budget || 0).toLocaleString('tr-TR'),
+          (p.actualCost || 0).toLocaleString('tr-TR'),
+          (p.revenue || 0).toLocaleString('tr-TR'),
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [147, 51, 234] },
+        columnStyles: {
+          0: { cellWidth: 40 },
+        },
+      });
+
+      yPos = (doc as any).lastAutoTable.finalY + 15;
+    }
+
+    // Team Members
+    if (teamMembers.length > 0 && yPos < 250) {
+      doc.setFontSize(14);
+      doc.text("Ekip Üyeleri", 14, yPos);
+      yPos += 8;
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['İsim', 'Uzmanlık', 'Günlük Ücret (₺)', 'Atanan Görev']],
+        body: teamMembers.map(m => {
+          const memberTasks = tasks.filter(t => t.assignedTo === m.id);
+          return [
+            m.name,
+            m.specialty,
+            (m.dailyWage || 0).toLocaleString('tr-TR'),
+            memberTasks.length.toString(),
+          ];
+        }),
+        theme: 'striped',
+        headStyles: { fillColor: [249, 115, 22] },
+      });
+    }
+
+    // Save PDF
+    doc.save(`insaat-raporu-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("Rapor PDF olarak indirildi!");
   };
 
   // Basic stats
@@ -115,12 +229,18 @@ export const ReportsSection = () => {
             {hasPremiumAccess ? "Gelişmiş raporlama ve analizler" : "Temel raporlar"}
           </p>
         </div>
-        {hasPremiumAccess && (
-          <Badge className="bg-primary gap-1">
-            <Crown className="h-3 w-3" />
-            {isAdmin ? "Admin" : "Premium"}
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {hasPremiumAccess && (
+            <Badge className="bg-primary gap-1">
+              <Crown className="h-3 w-3" />
+              {isAdmin ? "Admin" : "Premium"}
+            </Badge>
+          )}
+          <Button onClick={exportToPDF} variant="outline" size="sm" className="gap-2">
+            <Download className="h-4 w-4" />
+            PDF İndir
+          </Button>
+        </div>
       </div>
 
       {/* Basic Reports - Available for all */}
