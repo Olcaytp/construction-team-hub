@@ -70,6 +70,8 @@
     "noCustomer": "Müşteri yok",
     "photos": "Fotoğraflar",
     "uploadPhotos": "Fotoğraf Yükle",
+    "photosHint": "Yükledikten sonra Kaydet'e basın",
+    "noTeamMembers": "Önce Ekip sekmesinden ekip üyesi ekleyin",
     "cancel": "İptal",
     "save": "Kaydet"
   },

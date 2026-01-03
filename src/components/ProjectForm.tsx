@@ -316,7 +316,7 @@ export const ProjectForm = ({
                   <FormLabel>{t("project.assignedTeam")}</FormLabel>
                   <div className="border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
                     {teamMembers.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{t("common.noData")}</p>
+                      <p className="text-sm text-muted-foreground">{t("project.noTeamMembers")}</p>
                     ) : (
                       teamMembers.map((member) => (
                         <div key={member.id} className="flex items-center space-x-2">
@@ -398,6 +398,7 @@ export const ProjectForm = ({
 
             <div className="space-y-2">
               <FormLabel>{t("project.photos")}</FormLabel>
+              <p className="text-xs text-muted-foreground">{t("project.photosHint")}</p>
               <div className="flex items-start gap-3">
                 <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed rounded flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
                   <input
