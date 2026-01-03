@@ -134,7 +134,7 @@ export const ProjectForm = ({
     try {
       for (const file of Array.from(files)) {
         const fileExt = file.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -152,7 +152,7 @@ export const ProjectForm = ({
 
       const updatedUrls = [...photoUrls, ...newUrls];
       setPhotoUrls(updatedUrls);
-      form.setValue("photos", updatedUrls);
+      form.setValue("photos", updatedUrls, { shouldDirty: true });
       toast({ title: t("project.uploadPhotos") + " ✓" });
     } catch (error: any) {
       toast({
@@ -162,6 +162,8 @@ export const ProjectForm = ({
       });
     } finally {
       setUploading(false);
+      // Reset input to allow uploading same file again
+      e.target.value = '';
     }
   };
 
@@ -396,22 +398,8 @@ export const ProjectForm = ({
 
             <div className="space-y-2">
               <FormLabel>{t("project.photos")}</FormLabel>
-              <div className="flex flex-wrap gap-2">
-                {photoUrls.map((url, index) => (
-                  <div key={index} className="relative group">
-                    <img src={url} alt={`Photo ${index + 1}`} className="w-20 h-20 object-cover rounded" />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => removePhoto(url)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
-                <label className="w-20 h-20 border-2 border-dashed rounded flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+              <div className="flex items-start gap-3">
+                <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed rounded flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
                   <input
                     type="file"
                     multiple
@@ -420,8 +408,35 @@ export const ProjectForm = ({
                     onChange={handlePhotoUpload}
                     disabled={uploading}
                   />
-                  <Upload className="h-6 w-6 text-muted-foreground" />
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                  {uploading && <span className="text-xs text-muted-foreground mt-1">...</span>}
                 </label>
+                <div className="flex flex-wrap gap-2 flex-1">
+                  {photoUrls.map((url, index) => (
+                    <div key={`${url}-${index}`} className="relative group">
+                      <img 
+                        src={url} 
+                        alt={`Photo ${index + 1}`} 
+                        className="w-20 h-20 object-cover rounded border border-border"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder.svg';
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removePhoto(url)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                  {photoUrls.length === 0 && (
+                    <span className="text-sm text-muted-foreground self-center">{t("common.noData")}</span>
+                  )}
+                </div>
               </div>
             </div>
 
