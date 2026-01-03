@@ -70,6 +70,8 @@
     "noCustomer": "No customer",
     "photos": "Photos",
     "uploadPhotos": "Upload Photos",
+    "photosHint": "Press Save after uploading.",
+    "noTeamMembers": "Add team members first in the Team tab.",
     "cancel": "Cancel",
     "save": "Save"
   },

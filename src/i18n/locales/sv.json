@@ -70,6 +70,8 @@
     "noCustomer": "Ingen kund",
     "photos": "Foton",
     "uploadPhotos": "Ladda upp foton",
+    "photosHint": "Tryck på Spara efter uppladdning.",
+    "noTeamMembers": "Lägg till teammedlemmar först i Team-fliken.",
     "cancel": "Avbryt",
     "save": "Spara"
   },
