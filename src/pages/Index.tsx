@@ -870,6 +870,11 @@ const Index = () => {
         title={editingProject ? t('project.edit') : t('project.add')}
         teamMembers={teamMembers}
         customers={customers}
+        onSavePhotos={
+          editingProject
+            ? (urls) => updateProject({ id: editingProject.id, photos: urls })
+            : undefined
+        }
         defaultValues={editingProject ? {
           title: editingProject.title,
           description: editingProject.description,

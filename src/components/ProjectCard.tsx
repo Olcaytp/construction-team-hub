@@ -58,7 +58,12 @@ export const ProjectCard = ({
                 key={index} 
                 src={photo} 
                 alt={`${title} ${index + 1}`} 
+                loading="lazy"
                 className="w-20 h-20 object-cover rounded flex-shrink-0"
+                onError={(e) => {
+                  console.warn("[ProjectCard] photo failed to load", photo);
+                  (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+                }}
               />
             ))}
             {photos.length > 3 && (

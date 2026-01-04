@@ -67,6 +67,11 @@ interface ProjectFormProps {
   title: string;
   teamMembers?: TeamMember[];
   customers?: Customer[];
+  /**
+   * Edit modunda fotoğraflar yüklendiği anda kalıcı kaydetmek için.
+   * (Kartta görünmesi için proje güncellenir.)
+   */
+  onSavePhotos?: (photoUrls: string[]) => void | Promise<void>;
 }
 
 export const ProjectForm = ({
@@ -77,11 +82,13 @@ export const ProjectForm = ({
   title,
   teamMembers = [],
   customers = [],
+  onSavePhotos,
 }: ProjectFormProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [photoUrls, setPhotoUrls] = useState<string[]>(defaultValues?.photos || []);
+  const PHOTO_DEBUG = import.meta.env.DEV;
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -132,20 +139,37 @@ export const ProjectForm = ({
     const newUrls: string[] = [];
 
     try {
+      if (PHOTO_DEBUG) {
+        const { data } = await supabase.auth.getSession();
+        console.log("[ProjectForm] photo upload started", {
+          files: Array.from(files).map((f) => ({ name: f.name, size: f.size, type: f.type })),
+          hasSession: Boolean(data.session),
+          userId: data.session?.user?.id,
+        });
+      }
+
       for (const file of Array.from(files)) {
-        const fileExt = file.name.split(".").pop();
+        const fileExt = file.name.split(".").pop() || "jpg";
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${fileName}`;
 
+        if (PHOTO_DEBUG) console.log("[ProjectForm] uploading...", { filePath, fileName });
+
         const { error: uploadError } = await supabase.storage
           .from("project-photos")
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: file.type,
+          });
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          if (PHOTO_DEBUG) console.error("[ProjectForm] uploadError", uploadError);
+          throw uploadError;
+        }
 
-        const { data } = supabase.storage
-          .from("project-photos")
-          .getPublicUrl(filePath);
+        const { data } = supabase.storage.from("project-photos").getPublicUrl(filePath);
+        if (PHOTO_DEBUG) console.log("[ProjectForm] publicUrl", { filePath, publicUrl: data.publicUrl });
 
         newUrls.push(data.publicUrl);
       }
@@ -153,17 +177,24 @@ export const ProjectForm = ({
       const updatedUrls = [...photoUrls, ...newUrls];
       setPhotoUrls(updatedUrls);
       form.setValue("photos", updatedUrls, { shouldDirty: true });
+
+      // Fotoğraflar storage'a yüklendi ama projeye yazılması için (edit modunda) otomatik kaydet
+      await onSavePhotos?.(updatedUrls);
+
+      if (PHOTO_DEBUG) console.log("[ProjectForm] photo upload finished", { updatedUrls });
+
       toast({ title: t("project.uploadPhotos") + " ✓" });
     } catch (error: any) {
+      if (PHOTO_DEBUG) console.error("[ProjectForm] photo upload failed", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error?.message || String(error),
       });
     } finally {
       setUploading(false);
       // Reset input to allow uploading same file again
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
@@ -418,9 +449,11 @@ export const ProjectForm = ({
                       <img 
                         src={url} 
                         alt={`Photo ${index + 1}`} 
+                        loading="lazy"
                         className="w-20 h-20 object-cover rounded border border-border"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/placeholder.svg';
+                          if (PHOTO_DEBUG) console.warn("[ProjectForm] image failed to load", url);
+                          (e.target as HTMLImageElement).src = "/placeholder.svg";
                         }}
                       />
                       <Button
