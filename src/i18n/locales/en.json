@@ -75,6 +75,17 @@
     "cancel": "Cancel",
     "save": "Save"
   },
+  "contract": {
+    "title": "Subcontractor Agreement",
+    "generate": "Generate Contract",
+    "generateButton": "Generate with AI",
+    "generating": "Generating...",
+    "generated": "Contract generated successfully",
+    "generateError": "Error generating contract",
+    "description": "AI will analyze project details and create a professional subcontractor agreement draft.",
+    "downloadPDF": "Download PDF",
+    "downloaded": "Contract downloaded as PDF"
+  },
   "task": {
     "add": "Add Task",
     "edit": "Edit Task",

@@ -75,6 +75,17 @@
     "cancel": "İptal",
     "save": "Kaydet"
   },
+  "contract": {
+    "title": "Taşeron Sözleşmesi",
+    "generate": "Sözleşme Oluştur",
+    "generateButton": "AI ile Sözleşme Oluştur",
+    "generating": "Oluşturuluyor...",
+    "generated": "Sözleşme başarıyla oluşturuldu",
+    "generateError": "Sözleşme oluşturulurken hata oluştu",
+    "description": "AI, proje detaylarını analiz ederek profesyonel bir taşeron sözleşmesi taslağı hazırlayacak.",
+    "downloadPDF": "PDF İndir",
+    "downloaded": "Sözleşme PDF olarak indirildi"
+  },
   "task": {
     "add": "Görev Ekle",
     "edit": "Görev Düzenle",
