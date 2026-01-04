@@ -15,7 +15,8 @@ import { CustomerForm } from "@/components/CustomerForm";
 import { UpgradeAlert } from "@/components/UpgradeAlert";
 import { ReportsSection } from "@/components/ReportsSection";
 import { AdminPanel } from "@/components/AdminPanel";
-import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle, Crown, BarChart3, Shield } from "lucide-react";
+import { LayoutDashboard, FolderKanban, ListTodo, Users, Plus, Building2, Pencil, Trash2, DollarSign, LogOut, Package, UserCircle, Crown, BarChart3, Shield, FileText } from "lucide-react";
+import { ContractGenerator } from "@/components/ContractGenerator";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useProjects } from "@/hooks/useProjects";
@@ -416,6 +417,13 @@ const Index = () => {
                       }}
                     />
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <ContractGenerator
+                          project={project}
+                          customer={customers.find(c => c.id === project.customerId) || null}
+                          teamMembers={teamMembers.filter(m => project.assignedTeam.includes(m.id))}
+                        />
+                      </div>
                       <Button
                         size="icon"
                         variant="secondary"

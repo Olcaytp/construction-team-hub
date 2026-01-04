@@ -75,6 +75,17 @@
     "cancel": "Avbryt",
     "save": "Spara"
   },
+  "contract": {
+    "title": "Entreprenöravtal",
+    "generate": "Skapa avtal",
+    "generateButton": "Skapa med AI",
+    "generating": "Skapar...",
+    "generated": "Avtal skapades framgångsrikt",
+    "generateError": "Fel vid skapande av avtal",
+    "description": "AI analyserar projektdetaljer och skapar ett professionellt entreprenöravtalsutkast.",
+    "downloadPDF": "Ladda ner PDF",
+    "downloaded": "Avtal nedladdat som PDF"
+  },
   "task": {
     "add": "Lägg till uppgift",
     "edit": "Redigera uppgift",
