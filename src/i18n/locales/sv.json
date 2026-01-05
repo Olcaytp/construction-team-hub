@@ -71,6 +71,10 @@
     "photos": "Foton",
     "uploadPhotos": "Ladda upp foton",
     "photosHint": "Tryck på Spara efter uppladdning.",
+    "photoLimitReached": "Fotogräns nådd",
+    "photoLimitDescription": "Du kan ladda upp max {{max}} foton.",
+    "photoLimitPartial": "Vissa foton laddades inte upp",
+    "photoLimitPartialDesc": "Endast {{uploaded}}/{{total}} foton laddades upp (gräns: {{max}})",
     "noTeamMembers": "Lägg till teammedlemmar först i Team-fliken.",
     "cancel": "Avbryt",
     "save": "Spara"

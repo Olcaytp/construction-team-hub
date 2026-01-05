@@ -871,6 +871,7 @@ const Index = () => {
         title={editingProject ? t('project.edit') : t('project.add')}
         teamMembers={teamMembers}
         customers={customers}
+        maxPhotos={currentLimits.maxPhotosPerProject}
         onSavePhotos={
           editingProject
             ? (urls) => {
