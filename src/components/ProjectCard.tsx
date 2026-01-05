@@ -26,6 +26,7 @@ export const ProjectCard = ({
   onClick 
 }: ProjectCardProps) => {
   const { t } = useTranslation();
+  const PHOTO_DEBUG = import.meta.env.DEV;
 
   const statusColors = {
     active: "bg-success text-success-foreground",
@@ -60,8 +61,14 @@ export const ProjectCard = ({
                 alt={`${title} ${index + 1}`} 
                 loading="lazy"
                 className="w-20 h-20 object-cover rounded flex-shrink-0"
+                onLoad={() => {
+                  if (PHOTO_DEBUG) console.log("[ProjectCard] image loaded", photo);
+                }}
                 onError={(e) => {
-                  console.warn("[ProjectCard] photo failed to load", photo);
+                  console.warn("[ProjectCard] photo failed to load", {
+                    photo,
+                    currentSrc: (e.currentTarget as HTMLImageElement).currentSrc,
+                  });
                   (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
                 }}
               />

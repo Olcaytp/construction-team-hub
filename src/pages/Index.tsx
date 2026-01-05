@@ -862,6 +862,7 @@ const Index = () => {
 
       <ProjectForm
         open={projectFormOpen}
+        resetKey={editingProject ? editingProject.id : "new"}
         onOpenChange={(open) => {
           setProjectFormOpen(open);
           if (!open) setEditingProject(null);
@@ -872,7 +873,10 @@ const Index = () => {
         customers={customers}
         onSavePhotos={
           editingProject
-            ? (urls) => updateProject({ id: editingProject.id, photos: urls })
+            ? (urls) => {
+                setEditingProject((prev: any) => (prev ? { ...prev, photos: urls } : prev));
+                updateProject({ id: editingProject.id, photos: urls });
+              }
             : undefined
         }
         defaultValues={editingProject ? {

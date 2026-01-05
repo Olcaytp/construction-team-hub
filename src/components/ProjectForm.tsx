@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -68,6 +68,11 @@ interface ProjectFormProps {
   teamMembers?: TeamMember[];
   customers?: Customer[];
   /**
+   * Modal açıldığında hangi proje/işlem için reset yapılacağını belirler.
+   * (Parent'ta object-literal defaultValues yüzünden gereksiz resetleri engeller.)
+   */
+  resetKey?: string;
+  /**
    * Edit modunda fotoğraflar yüklendiği anda kalıcı kaydetmek için.
    * (Kartta görünmesi için proje güncellenir.)
    */
@@ -82,6 +87,7 @@ export const ProjectForm = ({
   title,
   teamMembers = [],
   customers = [],
+  resetKey,
   onSavePhotos,
 }: ProjectFormProps) => {
   const { t } = useTranslation();
@@ -108,28 +114,48 @@ export const ProjectForm = ({
     },
   });
 
+  const lastResetKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
+    if (!open) {
+      lastResetKeyRef.current = null;
+      return;
+    }
+
+    const key = resetKey ?? (defaultValues ? "edit" : "new");
+    if (lastResetKeyRef.current === key) return;
+    lastResetKeyRef.current = key;
+
+    if (PHOTO_DEBUG) {
+      console.log("[ProjectForm] reset", {
+        key,
+        hasDefaultValues: Boolean(defaultValues),
+        photosCount: defaultValues?.photos?.length ?? 0,
+      });
+    }
+
     if (defaultValues) {
       form.reset(defaultValues);
       setPhotoUrls(defaultValues.photos || []);
-    } else {
-      form.reset({
-        title: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-        assignedTeam: [],
-        customerId: "",
-        status: "planning",
-        progress: 0,
-        budget: 0,
-        actualCost: 0,
-        revenue: 0,
-        photos: [],
-      });
-      setPhotoUrls([]);
+      return;
     }
-  }, [defaultValues, form]);
+
+    form.reset({
+      title: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      assignedTeam: [],
+      customerId: "",
+      status: "planning",
+      progress: 0,
+      budget: 0,
+      actualCost: 0,
+      revenue: 0,
+      photos: [],
+    });
+    setPhotoUrls([]);
+  }, [open, resetKey]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -451,9 +477,17 @@ export const ProjectForm = ({
                         alt={`Photo ${index + 1}`} 
                         loading="lazy"
                         className="w-20 h-20 object-cover rounded border border-border"
+                        onLoad={() => {
+                          if (PHOTO_DEBUG) console.log("[ProjectForm] image loaded", url);
+                        }}
                         onError={(e) => {
-                          if (PHOTO_DEBUG) console.warn("[ProjectForm] image failed to load", url);
-                          (e.target as HTMLImageElement).src = "/placeholder.svg";
+                          if (PHOTO_DEBUG) {
+                            console.warn("[ProjectForm] image failed to load", {
+                              url,
+                              currentSrc: (e.currentTarget as HTMLImageElement).currentSrc,
+                            });
+                          }
+                          (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
                         }}
                       />
                       <Button
