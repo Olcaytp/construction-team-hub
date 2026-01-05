@@ -71,6 +71,10 @@
     "photos": "Photos",
     "uploadPhotos": "Upload Photos",
     "photosHint": "Press Save after uploading.",
+    "photoLimitReached": "Photo limit reached",
+    "photoLimitDescription": "You can upload a maximum of {{max}} photos.",
+    "photoLimitPartial": "Some photos were not uploaded",
+    "photoLimitPartialDesc": "Only {{uploaded}}/{{total}} photos uploaded (limit: {{max}})",
     "noTeamMembers": "Add team members first in the Team tab.",
     "cancel": "Cancel",
     "save": "Save"

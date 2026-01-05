@@ -8,10 +8,12 @@ export const PLAN_LIMITS = {
   standard: {
     maxProjects: 3,
     maxTeamMembers: 2,
+    maxPhotosPerProject: 2,
   },
   premium: {
     maxProjects: Infinity,
     maxTeamMembers: Infinity,
+    maxPhotosPerProject: 4,
   },
 } as const;
 
