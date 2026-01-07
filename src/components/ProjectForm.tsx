@@ -126,13 +126,13 @@ export const ProjectForm = ({
     if (lastResetKeyRef.current === key) return;
     lastResetKeyRef.current = key;
 
-    if (PHOTO_DEBUG) {
-      console.log("[ProjectForm] reset", {
-        key,
-        hasDefaultValues: Boolean(defaultValues),
-        photosCount: defaultValues?.photos?.length ?? 0,
-      });
-    }
+    // if (PHOTO_DEBUG) {
+    //   console.log("[ProjectForm] reset", {
+    //     key,
+    //     hasDefaultValues: Boolean(defaultValues),
+    //     photosCount: defaultValues?.photos?.length ?? 0,
+    //   });
+    // }
 
     if (defaultValues) {
       form.reset(defaultValues);
@@ -478,7 +478,7 @@ export const ProjectForm = ({
                         loading="lazy"
                         className="w-20 h-20 object-cover rounded border border-border"
                         onLoad={() => {
-                          if (PHOTO_DEBUG) console.log("[ProjectForm] image loaded", url);
+                          // if (PHOTO_DEBUG) console.log("[ProjectForm] image loaded", url);
                         }}
                         onError={(e) => {
                           if (PHOTO_DEBUG) {

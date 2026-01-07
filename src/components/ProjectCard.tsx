@@ -62,7 +62,7 @@ export const ProjectCard = ({
                 loading="lazy"
                 className="w-20 h-20 object-cover rounded flex-shrink-0"
                 onLoad={() => {
-                  if (PHOTO_DEBUG) console.log("[ProjectCard] image loaded", photo);
+                  // if (PHOTO_DEBUG) console.log("[ProjectCard] image loaded", photo);
                 }}
                 onError={(e) => {
                   console.warn("[ProjectCard] photo failed to load", {
