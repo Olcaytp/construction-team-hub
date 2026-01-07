@@ -77,6 +77,10 @@ interface ProjectFormProps {
    * (Kartta görünmesi için proje güncellenir.)
    */
   onSavePhotos?: (photoUrls: string[]) => void | Promise<void>;
+  /**
+   * Abonelik planına göre proje başına maksimum fotoğraf sayısı
+   */
+  maxPhotos?: number;
 }
 
 export const ProjectForm = ({
@@ -89,12 +93,15 @@ export const ProjectForm = ({
   customers = [],
   resetKey,
   onSavePhotos,
+  maxPhotos = 4,
 }: ProjectFormProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [photoUrls, setPhotoUrls] = useState<string[]>(defaultValues?.photos || []);
   const PHOTO_DEBUG = import.meta.env.DEV;
+  
+  const remainingPhotoSlots = maxPhotos - photoUrls.length;
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -161,6 +168,26 @@ export const ProjectForm = ({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Limit kontrolü
+    const allowedCount = Math.min(files.length, remainingPhotoSlots);
+    if (allowedCount <= 0) {
+      toast({
+        variant: "destructive",
+        title: t("project.photoLimitReached") || "Fotoğraf limiti doldu",
+        description: t("project.photoLimitDescription", { max: maxPhotos }) || `Maksimum ${maxPhotos} fotoğraf yükleyebilirsiniz.`,
+      });
+      e.target.value = "";
+      return;
+    }
+
+    const filesToUpload = Array.from(files).slice(0, allowedCount);
+    if (filesToUpload.length < files.length) {
+      toast({
+        title: t("project.photoLimitPartial") || "Bazı fotoğraflar yüklenmedi",
+        description: t("project.photoLimitPartialDesc", { uploaded: filesToUpload.length, total: files.length }) || `Sadece ${filesToUpload.length}/${files.length} fotoğraf yüklendi (limit: ${maxPhotos})`,
+      });
+    }
+
     setUploading(true);
     const newUrls: string[] = [];
 
@@ -168,13 +195,15 @@ export const ProjectForm = ({
       if (PHOTO_DEBUG) {
         const { data } = await supabase.auth.getSession();
         console.log("[ProjectForm] photo upload started", {
-          files: Array.from(files).map((f) => ({ name: f.name, size: f.size, type: f.type })),
+          files: filesToUpload.map((f) => ({ name: f.name, size: f.size, type: f.type })),
           hasSession: Boolean(data.session),
           userId: data.session?.user?.id,
+          maxPhotos,
+          remainingSlots: remainingPhotoSlots,
         });
       }
 
-      for (const file of Array.from(files)) {
+      for (const file of filesToUpload) {
         const fileExt = file.name.split(".").pop() || "jpg";
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${fileName}`;
@@ -454,21 +483,33 @@ export const ProjectForm = ({
             </div>
 
             <div className="space-y-2">
-              <FormLabel>{t("project.photos")}</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>{t("project.photos")}</FormLabel>
+                <span className="text-xs text-muted-foreground">
+                  {photoUrls.length}/{maxPhotos}
+                </span>
+              </div>
               <p className="text-xs text-muted-foreground">{t("project.photosHint")}</p>
               <div className="flex items-start gap-3">
-                <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed rounded flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handlePhotoUpload}
-                    disabled={uploading}
-                  />
-                  <Upload className="h-5 w-5 text-muted-foreground" />
-                  {uploading && <span className="text-xs text-muted-foreground mt-1">...</span>}
-                </label>
+                {remainingPhotoSlots > 0 ? (
+                  <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed rounded flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handlePhotoUpload}
+                      disabled={uploading}
+                    />
+                    <Upload className="h-5 w-5 text-muted-foreground" />
+                    {uploading && <span className="text-xs text-muted-foreground mt-1">...</span>}
+                  </label>
+                ) : (
+                  <div className="flex-shrink-0 w-20 h-20 border-2 border-dashed rounded flex flex-col items-center justify-center bg-muted/30 cursor-not-allowed">
+                    <Upload className="h-5 w-5 text-muted-foreground/50" />
+                    <span className="text-xs text-muted-foreground mt-1">Limit</span>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2 flex-1">
                   {photoUrls.map((url, index) => (
                     <div key={`${url}-${index}`} className="relative group">
